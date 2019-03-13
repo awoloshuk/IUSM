@@ -12,4 +12,4 @@ Attached are some screenshots of the output, showing the input image, output, ma
 
 ![Screenshot](https://github.com/awoloshuk/IUSM/blob/master/Unet/output.png)
 
-![Screenshot](https://raw.githubusercontent.com/awoloshuk/IUSM/Unet/output.png?raw=true "Optional Title")
+![Screenshot](https://github.com/awoloshuk/IUSM/blob/master/Unet/activations.png)
