@@ -8,6 +8,7 @@ Epithelium database and code from: http://www.andrewjanowczyk.com/deep-learning/
 * Training parameters can be seen in train-2.py
 
 # Results
+My trained model can be found in the .pth file. 
 Attached are some screenshots of the output, showing the input image, output, mask, and also a series of images representing different layer activations 
 
 Top row is from the training dataset, the mask, and mask weights. The bottom row shows the output, output mask, actual mask, and the input image from the validation set. 
