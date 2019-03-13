@@ -1,6 +1,6 @@
 # Implementing unet in pytorch
 # Database
-Epithelium database and code from from: http://www.andrewjanowczyk.com/deep-learning/
+Epithelium database and code from: http://www.andrewjanowczyk.com/deep-learning/
 
 # Training
 * trained using google VM on Kesla T80 took ~30 minutes for 100 epochs
