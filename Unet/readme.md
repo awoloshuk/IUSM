@@ -10,6 +10,6 @@ Epithelium database and code from from: http://www.andrewjanowczyk.com/deep-lear
 # Results
 Attached are some screenshots of the output, showing the input image, output, mask, and also a series of images representing different layer activations 
 
-![text](https://raw.githubusercontent.com/awoloshuk/IUSM/Unet/activations.png)
+![Screenshot](https://raw.githubusercontent.com/awoloshuk/IUSM/Unet/activations.png)
 
-![text2](https://raw.githubusercontent.com/awoloshuk/IUSM/Unet/output.png)
+![Screenshot](https://raw.githubusercontent.com/awoloshuk/IUSM/Unet/output.png)
