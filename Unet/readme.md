@@ -10,6 +10,8 @@ Epithelium database and code from from: http://www.andrewjanowczyk.com/deep-lear
 # Results
 Attached are some screenshots of the output, showing the input image, output, mask, and also a series of images representing different layer activations 
 
+Top row is from the training dataset, the mask, and mask weights. The bottom row shows the output, output mask, actual mask, and the input image from the validation set. 
 ![Screenshot](https://github.com/awoloshuk/IUSM/blob/master/Unet/output.png)
 
+This image shows a validation set image and the activation of unet layers
 ![Screenshot](https://github.com/awoloshuk/IUSM/blob/master/Unet/activations.png)
