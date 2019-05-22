@@ -8,9 +8,34 @@ import model.metric as module_metric
 import model.model as module_arch
 from train import get_instance
 
-
+def visualizationOutGray(data, output, target, classes):
+    #view first image in each batch w/ its prediction and label
+    ig = plt.figure()
+    output_cpu = output.to(torch.device("cpu"))
+    target_cpu = target.to(torch.device("cpu"))
+    data_cpu = data.to(torch.device("cpu"))
+    output_idx = (np.argmax(output_cpu[0], axis=0)) #reverse one hot
+    cls = classes[output_idx]
+    plt.title("Prediction = " + str(cls) + " | Actual = " + str(classes[target_cpu[0].numpy()]) )
+    img = data_cpu[0]
+    plt.imshow(np.transpose(np.reshape(img, (1,28,28)), (1,2,0)).squeeze(), cmap = 'gray') # realign 
+    
+def visualizationOutColor(data, output, target, classes):
+    #view first image in each batch w/ its prediction and label
+    fig = plt.figure()
+    output_cpu = output.to(torch.device("cpu"))
+    target_cpu = target.to(torch.device("cpu"))
+    data_cpu = data.to(torch.device("cpu"))
+    idx = (np.argmax(output_cpu[0], axis=0))
+    cls = classes[idx]
+    plt.title("Prediction = " + str(cls) + " | Actual = " + str(classes[target_cpu[0].numpy()]) )
+    img = data_cpu[0]
+    plt.imshow(np.transpose(np.reshape(img,(3, 32,32)), (1,2,0))) #un-normalize and realign    
+                
 def main(config, resume):
     # setup data_loader instances
+    data_loader = get_instance(module_data, 'data_loader_test', config)
+    '''
     data_loader = getattr(module_data, config['data_loader']['type'])(
         config['data_loader']['args']['data_dir'],
         batch_size=512,
@@ -19,11 +44,16 @@ def main(config, resume):
         training=False,
         num_workers=2
     )
+    '''
 
     # build model architecture
     model = get_instance(module_arch, 'arch', config)
     model.summary()
-
+    if torch.cuda.is_available():
+        print("Using GPU: " + torch.cuda.get_device_name(0))
+    else:
+        print("Using CPU to test")
+        
     # get function handles of loss and metrics
     loss_fn = getattr(module_loss, config['loss'])
     metric_fns = [getattr(module_metric, met) for met in config['metrics']]

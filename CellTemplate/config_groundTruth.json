@@ -1,19 +1,33 @@
 {
-    "name": "Mnist_LeNet",
+    "name": "GroundTruthMNIST",
     "n_gpu": 0,
     
     "arch": {
-        "type": "MnistModel",
+        "type": "groundTruthModel",
         "args": {}
     },
     "data_loader": {
-        "type": "MnistDataLoader",
+        "type": "groundTruth_DataLoader",
         "args":{
-            "data_dir": "data/",
-            "batch_size": 128,
+            "data_dir": "data/GroundTruth_052219/",
+            "csv_path": "data/GroundTruth_052219/Label_1.csv",
+            "batch_size": 64,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 2
+            "num_workers": 2,
+            "training": true
+        }
+    },
+    "data_loader_test": { 
+        "type": "groundTruth_DataLoader",
+        "args":{
+            "data_dir": "data/GroundTruth_052219/", 
+            "csv_path": "data/GroundTruth_052219/Label_1.csv", 
+            "batch_size": 1,
+            "shuffle": false,
+            "validation_split": 0.0,
+            "num_workers": 2,
+            "training": false
         }
     },
     "optimizer": {
@@ -26,7 +40,7 @@
     },
     "loss": "nll_loss",
     "metrics": [
-        "my_metric", "my_metric2"
+        "my_metric"
     ],
     "lr_scheduler": {
         "type": "StepLR",
@@ -36,7 +50,7 @@
         }
     },
     "trainer": {
-        "epochs": 10,
+        "epochs": 30,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
@@ -48,3 +62,4 @@
         "log_dir": "saved/runs"
     }
 }
+

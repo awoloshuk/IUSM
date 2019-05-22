@@ -13,6 +13,17 @@ from utils import Logger
 def get_instance(module, name, config, *args):
     return getattr(module, config[name]['type'])(*args, **config[name]['args'])
 
+def visualize(dataloader):
+    images, labels = next(iter(dataloader))
+    fig = plt.figure(figsize=(40, 40))
+    batch = math.ceil(math.sqrt(dataloader.batch_size))
+    for i in range(len(images)):
+        a = fig.add_subplot(batch,batch,i+1)
+        img = images[i].permute(1,2,0).numpy()
+        img = np.squeeze(img)
+        imgplot = plt.imshow(img, cmap = "gray")
+        plt.axis('off')
+        a.set_title("Label = " +str(labels[i].numpy()), fontsize=30)
 
 def main(config, resume):
     train_logger = Logger()
@@ -24,7 +35,12 @@ def main(config, resume):
     # build model architecture
     model = get_instance(module_arch, 'arch', config)
     print(model)
-
+    
+    if torch.cuda.is_available():
+        print("Using GPU: " + torch.cuda.get_device_name(0))
+    else:
+        print("Using CPU to train")
+        
     # get function handles of loss and metrics
     loss = getattr(module_loss, config['loss'])
     metrics = [getattr(module_metric, met) for met in config['metrics']]
