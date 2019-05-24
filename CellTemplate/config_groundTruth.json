@@ -10,8 +10,8 @@
         "type": "groundTruth_DataLoader",
         "args":{
             "data_dir": "data/GroundTruth_052219/",
-            "csv_path": "data/GroundTruth_052219/Label_1.csv",
-            "batch_size": 64,
+            "csv_path": "data/GroundTruth_052219/Train.csv",
+            "batch_size": 32,
             "shuffle": true,
             "validation_split": 0.1,
             "num_workers": 2,
@@ -22,7 +22,7 @@
         "type": "groundTruth_DataLoader",
         "args":{
             "data_dir": "data/GroundTruth_052219/", 
-            "csv_path": "data/GroundTruth_052219/Label_1.csv", 
+            "csv_path": "data/GroundTruth_052219/Test.csv", 
             "batch_size": 1,
             "shuffle": false,
             "validation_split": 0.0,
@@ -50,7 +50,7 @@
         }
     },
     "trainer": {
-        "epochs": 30,
+        "epochs": 75,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,

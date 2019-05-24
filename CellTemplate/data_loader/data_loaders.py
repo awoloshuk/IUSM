@@ -40,7 +40,7 @@ class template_DataLoader(BaseDataLoader):
 class groundTruth_DataLoader(BaseDataLoader):
     def __init__(self, csv_path, data_dir, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True):
         trsfm_train = transforms.Compose([
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]), #random values, should be changed based dataset
+            #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]), #random values, should be changed based dataset
             transforms.RandomHorizontalFlip(),
             transforms.RandomAffine(45, translate=(.2,.2), scale=(0.75,1.25), shear=None, resample=False, fillcolor=0),
             #transforms.RandomRotation(45),
