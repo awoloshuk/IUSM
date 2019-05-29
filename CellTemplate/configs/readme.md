@@ -39,3 +39,19 @@ optimizer
 loss - the loss function to use to calculate back propogation in loss.py
 
 metrics - string list of metrics defined in metrics.py
+
+lr_scheduler 
+- type - the name of the learning rate schedule (see torch.optim)
+- args
+   - step_size - number of epochs between learning rate adjustments
+   - gamma - multiplicative factor of learning rate decay
+   
+trainer
+- epochs - number of training iterations
+- save_dir - where the logs from the training are saved
+- save_period - number of epochs between saves
+- verbosity - amount of detail printed to the screen. Use 0 for faster speeds
+- monitor - a string with the function and the parameter separated by a space. deafult is minimum value of the loss function on validation data
+- early_stop - number of epochs with no improvement in the monitored value at which training is terminated
+- tensorboardX - visualization service, not implemented currently
+- log_dir - where the log should save training information
