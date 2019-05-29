@@ -26,9 +26,13 @@ def visualize(dataloader):
         a.set_title("Label = " +str(labels[i].numpy()), fontsize=30)
 
 def main(config, resume):
+    print("================")
+    print("Beginning Training")
     train_logger = Logger()
 
     # setup data_loader instances
+    print(config['data_loader'])
+    print(config['data_loader']['type'])
     data_loader = get_instance(module_data, 'data_loader', config)
     valid_data_loader = data_loader.split_validation()
 
