@@ -13,6 +13,7 @@ import pathlib
 import random
 import pandas as pd
 import numpy as np
+from collections import Counter
 
 def list_dirs(directory):
     """Returns all directories in a given directory
@@ -24,6 +25,16 @@ def list_files(directory):
     """Returns all files in a given directory
     """
     return [f for f in pathlib.Path(directory).iterdir() if f.is_file() and f.name.endswith('.tiff')]
+
+def getForwardProbabilty(train_list):
+    train_labels = {}
+    for item in train_list:
+        if item: 
+            key = "class_" + str(item[1])
+            if not key in train_labels: train_labels[key] = 0
+            train_labels[key] += 1 
+    for key in train_labels.keys():
+        print("forward probability for " + key + " is: " + str(train_labels[key]/(len(train_list)-1)))
 
 
 def splitTrainTest(root_dir, csv_path, split_fraction):
@@ -82,6 +93,7 @@ def splitTrainTest(root_dir, csv_path, split_fraction):
     
     print("Training images = " + str(len(train_list)))
     print("Test images = " + str(len(test_list)))
+    getForwardProbabilty(train_list)
     cols = ['Filename', 'Label']
     csv_Test = pd.DataFrame(test_list, columns = cols) 
     csv_Train = pd.DataFrame(train_list, columns = cols)
@@ -90,9 +102,6 @@ def splitTrainTest(root_dir, csv_path, split_fraction):
     csv_Train.to_csv(path_or_buf = rootd+"/Train.csv", index=False)
 
     
-
-#rootd = "/Users/andre/Desktop/CellTemplate/data/"
-#csv = "/Users/andre/Desktop/CellTemplate/data/groundTruth/Train/Label_1.csv"
 
 def main(rootd, csv, split):
     splitTrainTest(rootd, csv, split)
