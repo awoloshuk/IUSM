@@ -1,6 +1,6 @@
 {
     "name": "GroundTruth_cellData",
-    "n_gpu": 0,
+    "n_gpu": 1,
     
     "arch": {
         "type": "heatmapModel",
@@ -33,7 +33,7 @@
     "optimizer": {
         "type": "Adam",
         "args":{
-            "lr": 0.005,
+            "lr": 0.001,
             "weight_decay": 0,
             "amsgrad": true
         }
@@ -56,7 +56,7 @@
         "verbosity": 2,
         
         "monitor": "min val_loss",
-        "early_stop": 20,
+        "early_stop": 25,
         
         "tensorboardX": false,
         "log_dir": "saved/runs"

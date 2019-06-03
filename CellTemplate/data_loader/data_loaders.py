@@ -3,6 +3,7 @@ from base import BaseDataLoader
 from data_loader import databases
 import os
 import importlib
+import torch
 
 
 class MnistDataLoader(BaseDataLoader):
