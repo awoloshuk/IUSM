@@ -30,7 +30,7 @@ def graphLoss(saved_dir):
     fig1 = plt.figure() 
     plt.plot(range(len(losses)), losses, 'r--', range(len(losses)), val_losses, 'b--')
     plt.title('Training and validation loss - red and blue respectively')
-    plt.ylim(0,2.5)
+    plt.ylim(0,1.0)
     plt.show()
     
     fig2 = plt.figure()

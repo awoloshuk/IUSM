@@ -54,6 +54,7 @@ class groundTruthDataset(Dataset):
         img_name = os.path.join(self.root_dir,
                                 str(self.csv_data.iloc[index, 0])) #path data is in the 1rst column
         image = io.imread(img_name)
+        image = image.astype(float)
         img_as_img = Image.fromarray(image) #convert to PIL
         label = int(self.csv_data.iloc[index, 1])  #label is in the 2nd column
         label = label - 1 # go from 1,2 to 0,1 --> not great solution

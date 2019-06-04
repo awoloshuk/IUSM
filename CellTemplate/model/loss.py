@@ -1,8 +1,9 @@
 import torch.nn.functional as F
 import torch.nn as nn
 
-def nll_loss():
-    return F.nll_loss()
+def nll_loss(weights):
+    # model must have softmax layer 
+    return nn.NLLLoss(weight = weights)
 
 def cross_entropy_loss(weights):
     return nn.CrossEntropyLoss(weight = weights)

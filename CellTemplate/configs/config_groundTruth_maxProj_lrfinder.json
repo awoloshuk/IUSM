@@ -1,5 +1,5 @@
 {
-    "name": "GroundTruth_cellData",
+    "name": "GroundTruth_maxProjection",
     "n_gpu": 1,
     
     "arch": {
@@ -9,9 +9,9 @@
     "data_loader": {
         "type": "groundTruth_DataLoader",
         "args":{
-            "data_dir": "data/GroundTruth_052219/",
-            "csv_path": "data/GroundTruth_052219/Train.csv",
-            "batch_size": 32,
+            "data_dir": "data/max_projection_060419/",
+            "csv_path": "data/max_projection_060419/Train.csv",
+            "batch_size": 400,
             "shuffle": true,
             "validation_split": 0.15,
             "num_workers": 2,
@@ -21,9 +21,9 @@
     "data_loader_test": { 
         "type": "groundTruth_DataLoader",
         "args":{
-            "data_dir": "data/GroundTruth_052219/", 
-            "csv_path": "data/GroundTruth_052219/Test.csv", 
-            "batch_size": 1,
+            "data_dir": "data/max_projection_060419/", 
+            "csv_path": "data/max_projection_060419/Test.csv", 
+            "batch_size": 100,
             "shuffle": false,
             "validation_split": 0.0,
             "num_workers": 2,
@@ -31,28 +31,28 @@
         }
     },
     "optimizer": {
-        "type": "Adam",
+        "type": "SGD",
         "args":{
-            "lr": 0.001,
+            "lr": 1e-7,
             "weight_decay": 0,
-            "amsgrad": true
+            "momentum": 0.9
         }
     },
     "loss": "cross_entropy_loss",
     "metrics": [
-        "my_metric"
+        "my_metric", "f1", "balanced_accuracy", "precision", "recall"
     ],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
-            "step_size": 15,
+            "step_size": 25,
             "gamma": 0.1
         }
     },
     "trainer": {
-        "epochs": 150,
+        "epochs": 300,
         "save_dir": "saved/",
-        "save_period": 20,
+        "save_period": 50,
         "verbosity": 2,
         
         "monitor": "min val_loss",

@@ -25,6 +25,66 @@ class MnistModel(BaseModel):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
     
+    
+class deeperModel(BaseModel):
+    def __init__(self,num_feature=32, num_classes=2):
+        super(deeperModel,self).__init__()
+        self.num_feature=num_feature
+        
+        self.layer = nn.Sequential(
+            nn.Conv2d(1,self.num_feature,5,1,2),
+            nn.BatchNorm2d(self.num_feature),
+            nn.ReLU(),
+            nn.Conv2d(self.num_feature,self.num_feature*2,3,1,1),
+            nn.BatchNorm2d(self.num_feature*2),
+            nn.ReLU(),
+            nn.AvgPool2d(2,2),
+            
+            nn.Conv2d(self.num_feature*2,self.num_feature*4,3,1,1),
+            nn.BatchNorm2d(self.num_feature*4),
+            nn.ReLU(),
+            nn.Conv2d(self.num_feature*4,self.num_feature*8,3,1,1),
+            nn.BatchNorm2d(self.num_feature*8),
+            nn.ReLU(),
+            nn.AvgPool2d(2,2),
+            
+            nn.Conv2d(self.num_feature*8,self.num_feature*16,3,1,1),
+            nn.BatchNorm2d(self.num_feature*16),
+            nn.ReLU(),
+            nn.AvgPool2d(2,2),
+            nn.Conv2d(self.num_feature*16,self.num_feature*16,3,1,1),
+            nn.BatchNorm2d(self.num_feature*16),
+            nn.ReLU(),
+        )
+        self.fc_layer = nn.Sequential(
+            nn.Linear(self.num_feature*16*3*3,1000),
+            nn.ReLU(),
+            nn.Linear(1000,num_classes)
+        )       
+        
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                
+                # Kaming Initialization
+                init.kaiming_normal_(m.weight.data)
+                #m.bias.data.fill_(0)
+                init.normal_(m.bias.data)
+                
+            elif isinstance(m, nn.Linear):
+
+                # Kaming Initialization
+                init.kaiming_normal_(m.weight.data)
+                #m.bias.data.fill_(0)
+                init.normal_(m.bias.data)
+        
+        
+    def forward(self,x):
+        out = self.layer(x)
+        out = out.view(x.size()[0],-1)
+        out = self.fc_layer(out)
+
+        return out
+    
 class myCustomModel(BaseModel):
     def __init__(self, num_classes = 2):
         super(myCustomModel, self).__init__()
@@ -85,6 +145,19 @@ class groundTruthModel(BaseModel):
         self.conv2_drop = nn.Dropout2d()
         self.fc1 = nn.Linear(320, 50)
         self.fc2 = nn.Linear(50, num_classes)
+        
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                
+                # Xavier Initialization
+                init.xavier_normal_(m.weight.data)
+                init.normal_(m.bias.data)
+                
+            elif isinstance(m, nn.Linear):
+
+                # Xavier Initialization
+                init.xavier_normal_(m.weight.data)
+                init.normal_(m.bias.data)
 
     def forward(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
@@ -95,6 +168,8 @@ class groundTruthModel(BaseModel):
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
+    
+    
     
 class heatmapModel(BaseModel):
     def __init__(self,num_feature=32):
@@ -129,14 +204,16 @@ class heatmapModel(BaseModel):
             if isinstance(m, nn.Conv2d):
                 
                 # Kaming Initialization
-                init.kaiming_normal(m.weight.data)
-                m.bias.data.fill_(0)
+                init.kaiming_normal_(m.weight.data)
+                #m.bias.data.fill_(0)
+                init.normal_(m.bias.data)
                 
             elif isinstance(m, nn.Linear):
 
                 # Kaming Initialization
-                init.kaiming_normal(m.weight.data)
-                m.bias.data.fill_(0)
+                init.kaiming_normal_(m.weight.data)
+                #m.bias.data.fill_(0)
+                init.normal_(m.bias.data)
         
         
     def forward(self,x):
@@ -145,4 +222,5 @@ class heatmapModel(BaseModel):
         out = self.fc_layer(out)
 
         return out
-   
+ 
+

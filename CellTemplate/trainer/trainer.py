@@ -22,6 +22,9 @@ class Trainer(BaseTrainer):
         self.log_step = int(np.sqrt(data_loader.batch_size))
 
     def _eval_metrics(self, output, target):
+        if output.is_cuda: output = output.cpu()
+        if target.is_cuda: target = target.cpu()
+        
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
             acc_metrics[i] += metric(output, target)
@@ -50,7 +53,6 @@ class Trainer(BaseTrainer):
         total_metrics = np.zeros(len(self.metrics))
         for batch_idx, (data, target) in enumerate(self.data_loader):
             data, target = data.to(self.device), target.to(self.device)
-
             self.optimizer.zero_grad()
             output = self.model(data)
             loss = self.loss(output, target)
