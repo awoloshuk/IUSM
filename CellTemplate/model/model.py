@@ -97,14 +97,15 @@ class myCustomModel(BaseModel):
 class pretrainedModel(BaseModel):
     def __init__(self):
         super(pretrainedModel, self).__init__()
-        resnet = models.resnet18(pretrained=True)
+        resnet = models.resnet152(pretrained=True)
         resnet.train()
         for param in resnet.parameters():
             param.requires_grad = False
 
         # new final layer with 10 classes
         num_ftrs = resnet.fc.in_features
-        resnet.fc = torch.nn.Linear(num_ftrs, 10) #input is 224,224,3
+        resnet.fc = torch.nn.Linear(num_ftrs, 2) #input is 224,224,3
+            
         use_gpu = True
         if use_gpu:
             resnet = resnet.cuda()
@@ -113,6 +114,12 @@ class pretrainedModel(BaseModel):
         optimizer = torch.optim.SGD(resnet.fc.parameters(), lr=0.001, momentum=0.9)
         exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
         self.resnet = resnet
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                # Kaming Initialization
+                init.kaiming_normal_(m.weight.data)
+                #m.bias.data.fill_(0)
+                init.normal_(m.bias.data)
 
     def forward(self, x):
         x = self.resnet(x)

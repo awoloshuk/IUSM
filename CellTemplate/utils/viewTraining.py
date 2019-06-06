@@ -20,6 +20,7 @@ def graphLoss(saved_dir):
             print("skipped file: " + filename)
     '''
     file_name = os.path.join(saved_dir, "model_best.pth")
+    #file_name = os.path.join(saved_dir, "checkpoint-epoch100.pth")
     checkpoint = torch.load(file_name)
     logger = checkpoint['logger']
     for item in logger.entries:
