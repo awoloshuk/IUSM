@@ -129,7 +129,10 @@ class Window(Frame):
         self.ValidateDirPathName = "/home/ddean/testImages"
         self.TestDirPathName = "/home/ddean/testImages"
         self.ConfigPathName = "CellTemplate/config.json"
+        self.ImgDirName = ""
         self.TestFileName = ""
+        self.csvPath = ""
+        self.dataSplit = 0.1
 
         # Create the neural net runtime
         self.neuralNet = basicNeuralNet.BasicNeuralNet()
@@ -142,19 +145,23 @@ class Window(Frame):
         # Create the file and edit menu
         fileMenu = Menu(menuBar)
         editMenu = Menu(menuBar)
+        andreMenu = Menu(menuBar)
 
         # Add commands to the menus
         fileMenu.add_command(label="Set Training Directory...", command=self.SetTrainingDir)
         fileMenu.add_command(label="Set Validation Directory...", command=self.SetValidationDir)
         fileMenu.add_command(label="Set Test Directory...", command=self.SetTestingDir)
-        fileMenu.add_command(label="Set Config File...", command= self.SetConfig)
-        fileMenu.add_command(label="Set Test File...", command= self.SetTestFile)
+        andreMenu.add_command(label="Set Image Directory...", command= self.SetImgDir)
+        andreMenu.add_command(label="Set Config File...", command= self.SetConfig)
+        andreMenu.add_command(label="Set Test .pth File...", command= self.SetTestFile)
+        andreMenu.add_command(label="Set image labels csv  File...", command= self.SetCsvFile)
         fileMenu.add_command(label="Exit", command=self.ExitApplication)
         editMenu.add_command(label="Show Img", command=self.OnShowImageCommand)
 
         # Add the menus to the menubar
         menuBar.add_cascade(label="File", menu=fileMenu)
         menuBar.add_cascade(label="Edit", menu=editMenu)
+        menuBar.add_cascade(label="Andre", menu=andreMenu)
 
         # Create the image canvas
         self.imageCanvas = Canvas(self, width = CANVAS_WIDTH, height = CANVAS_HEIGHT)
@@ -163,7 +170,7 @@ class Window(Frame):
 
         # Create buttons and place them in the window.
         xPos = BUTTON_POSITION_LEFT
-        yPos = BUTTON_POSITION_TOP
+        yPos = BUTTON_POSITION_TOP + BUTTON_HEIGHT
         currentButton = Button(self, text="Train", command = self.TrainFromAllFiles)
         currentButton.place(x = xPos, y = yPos)
 
@@ -184,7 +191,8 @@ class Window(Frame):
         showButton = Button(self, text="Show Image", command = self.OnShowImageCommand)
         showButton.place(x = xPos, y = yPos)
 
-        xPos = xPos + BUTTON_WIDTH + BUTTON_PADDING;
+        xPos = BUTTON_POSITION_LEFT
+        yPos = yPos + BUTTON_HEIGHT
         showButton = Button(self, text="Edit config.json", command = self.runJsonGUI)
         showButton.place(x = xPos, y = yPos)
 
@@ -195,6 +203,10 @@ class Window(Frame):
         xPos = xPos + BUTTON_WIDTH + BUTTON_PADDING;
         showButton = Button(self, text="test", command = lambda: self.testAndre())
         showButton.place(x = xPos, y = yPos)
+
+        xPos = xPos + BUTTON_WIDTH + BUTTON_PADDING;
+        showButton = Button(self, text="split data", command = lambda: self.splitData())
+        showButton.place(x = xPos, y = yPos)
         
         # Create the text fields for the status strings        
         yPos = TEXT_STATUS_POSITION_TOP
@@ -202,15 +214,15 @@ class Window(Frame):
         self.StatusLabel.place(x = TEXT_STATUS_POSITION_LEFT, y = yPos)
 
         yPos = yPos + TEXT_STATUS_HEIGHT
-        self.TrainDirLabel = Label(self, text="Training Directory: " + self.TrainDirPathName)
+        self.TrainDirLabel = Label(self, text="Image directory Directory: " + self.ImgDirName)
         self.TrainDirLabel.place(x = TEXT_STATUS_POSITION_LEFT, y = yPos)
 
         yPos = yPos + TEXT_STATUS_HEIGHT
-        self.ValidateDirLabel = Label(self, text="Validation Directory: " + self.ValidateDirPathName)
+        self.ValidateDirLabel = Label(self, text="CSV file with all filepaths and labels: " + self.csvPath)
         self.ValidateDirLabel.place(x = TEXT_STATUS_POSITION_LEFT, y = yPos)
 
         yPos = yPos + TEXT_STATUS_HEIGHT
-        self.TestDirLabel = Label(self, text="Test Directory: " + self.TestDirPathName)
+        self.TestDirLabel = Label(self, text="Test model.pth file: " + self.TestFileName)
         self.TestDirLabel.place(x = TEXT_STATUS_POSITION_LEFT, y = yPos)
 
         yPos = yPos + TEXT_STATUS_HEIGHT
@@ -252,7 +264,7 @@ class Window(Frame):
         dirName = filedialog.askdirectory()
         if dirName:
             self.TrainDirPathName = dirName
-            self.TrainDirLabel.config(text = "Training Directory: " + self.TrainDirPathName)
+            self.TrainDirLabel.config(text = "Image directory Directory: " + self.ImgDirName)
     # End - SetTrainingDir
 
 
@@ -263,7 +275,7 @@ class Window(Frame):
         dirName = filedialog.askdirectory()
         if dirName:
             self.ValidateDirPathName = dirName
-            self.ValidateDirLabel.config(text = "Validation Directory: " + self.ValidateDirPathName)
+            self.ValidateDirLabel.config(text = "CSV file with all filepaths and labels: " + self.csvPath)
     # End - SetValidationDir
 
 
@@ -274,7 +286,7 @@ class Window(Frame):
         dirName = filedialog.askdirectory()
         if dirName:
             self.TestDirPathName = dirName
-            self.TestDirLabel.config(text = "Test Directory: " + self.TestDirPathName)
+            self.TestDirLabel.config(text = "Test model.pth file: " + self.TestFileName)
     # End - SetTestDir
 
     #######################################
@@ -288,15 +300,30 @@ class Window(Frame):
     # End - SetTestingDir
 
     #######################################
-    # Called by a menu command to change a test file pathname
+    # Called by a menu command to change a test file pathname to config
     #######################################
     def SetTestFile(self):
         fileName = filedialog.askopenfilename()
         if fileName:
             self.TestFileName = fileName
+            self.TestDirLabel.config(text = "Test model.pth file: " + self.TestFileName)
     # End - SetTestFile
 
-
+    #######################################
+    # Called by a menu command to change the pathname to the image directory
+    #######################################
+    
+    def SetImgDir(self):
+      dirName = filedialog.askdirectory()
+      if dirName:
+            self.ImgDirName = dirName
+            self.TrainDirLabel.config(text = "Image directory Directory: " + self.ImgDirName)
+            
+    def SetCsvFile(self):
+        fileName = filedialog.askopenfilename()
+        if fileName:
+            self.csvPath = fileName
+            self.ValidateDirLabel.config(text = "CSV file with all filepaths and labels: " + self.csvPath)
     #######################################
     #######################################
     def TrainFromAllFiles(self):
@@ -417,7 +444,7 @@ class Window(Frame):
 
     def runJsonGUI(self):
         root_json = Toplevel()
-        json_gui = JSON_GUI(root_json)
+        json_gui = JSON_GUI(root_json, renalGUI = self)
         root_json.mainloop()
 
     def trainAndre(self):
@@ -427,7 +454,13 @@ class Window(Frame):
     def testAndre(self):
         runString = "python3 ../test.py -r " + self.TestFileName 
         os.system(runString)
-
+    def splitData(self):
+        runString = "python3 ../utils/splitDataFolder.py -r " + self.ImgDirName + \
+                    " -c " +  self.csvPath + \
+                    " -s " + str(self.dataSplit)
+        print(runString)
+        os.system(runString)
+        
 # End - class Window
 
 

@@ -38,6 +38,18 @@ class groundTruthDataset(Dataset):
         self.root_dir = root_dir
         self.transforms = transforms
         self.data_len = len(self.csv_data)
+
+        all_labels = self.csv_data.iloc[:,1]
+        count_labels = {}
+        for item in all_labels:
+            if item: 
+                key = "class_" + str(item)
+                if not key in count_labels: count_labels[key] = 0
+                count_labels[key] += 1 
+        weights = []
+        for key in count_labels:
+            weights.append(1. / count_labels[key])
+        self.weight = torch.FloatTensor(weights)
         
     def __getitem__(self, index):
         img_name = os.path.join(self.root_dir,

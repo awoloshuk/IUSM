@@ -1,12 +1,14 @@
 import json
 from tkinter import *
+import os
 
 ## TODO: improve readability plus add "help" description for each variable
 
 class JSON_GUI(Frame):
-    def __init__(self, master = None):
+    def __init__(self, master = None, renalGUI = None):
         Frame.__init__(self, master)
         self.master = master
+        self.renalGUI = renalGUI
         self.init_window()
 
     def init_window(self):
@@ -120,17 +122,23 @@ class JSON_GUI(Frame):
         print(".json file saved")
         
     def createDefaultJson(self):
+        imgdir = str(self.renalGUI.ImgDirName)
+        if imgdir == "": imgdir = "Path/to/images"
+        traincsv = os.path.join(imgdir, "Train.csv")
+        testcsv = os.path.join(imgdir, "Test.csv")
+        
         self.data = {}
         self.data['name'] = 'Default_fromGUI'
         self.data['n_gpu']  = 0
         self.data['arch']  = {'type': 'groundTruthModel', 'args': {}}
-        self.data['data_loader']  = {'type': 'groundTruth_DataLoader', 'args': {'data_dir': '.../data/GroundTruth_052219/', 'csv_path': 'CellTemplate/data/GroundTruth_052219/Train.csv', 'batch_size': 32, 'shuffle': True, 'validation_split': 0.1, 'num_workers': 2, 'training': True}}
-        self.data['data_loader_test']  = {'type': 'groundTruth_DataLoader', 'args': {'data_dir': '../data/GroundTruth_052219/', 'csv_path': 'CellTemplate/data/GroundTruth_052219/Test.csv', 'batch_size': 1, 'shuffle': False, 'validation_split': 0.0, 'num_workers': 2, 'training': False}}
+        self.data['data_loader']  = {'type': 'groundTruth_DataLoader', 'args': {'data_dir': imgdir, 'csv_path': traincsv, 'batch_size': 32, 'shuffle': True, 'validation_split': 0.1, 'num_workers': 2, 'training': True}}
+        self.data['data_loader_test']  = {'type': 'groundTruth_DataLoader', 'args': {'data_dir': imgdir, 'csv_path': testcsv, 'batch_size': 1, 'shuffle': False, 'validation_split': 0.0, 'num_workers': 2, 'training': False}}
         self.data['optimizer']  = {'type': 'Adam', 'args': {'lr': 0.001, 'weight_decay': 0, 'amsgrad': True}}
         self.data['loss']  = 'nll_loss'
         self.data['metrics']  = ['my_metric', 'my_metric2']
         self.data['lr_scheduler']  = {'type': 'StepLR', 'args': {'step_size': 50, 'gamma': 0.1}}
         self.data['trainer']  = {'epochs': 75, 'save_dir': '../saved/', 'save_period': 1, 'verbosity': 2, 'monitor': 'min val_loss', 'early_stop': 10, 'tensorboardX': True, 'log_dir': '../saved/runs'}
+        self.data['augmenter'] = {'type': 'augmentation_handler', 'args': {'rotation': 0, 'scale': 0.0, 'crop': 0, 'translate': 0.0, 'random_flip': 0.0}}
         
     def writeJson(self, path):
         with open(path, "w") as write_file:

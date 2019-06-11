@@ -8,6 +8,7 @@ import torch
 from tqdm import tqdm
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
+import data_loader.augmenters as module_augmentation
 import model.metric as module_metric
 import model.model as module_arch
 from train import get_instance
@@ -41,6 +42,9 @@ def visualizationOutColor(data, output, target, classes):
 def main(config, resume):
     # setup data_loader instances
     data_loader = get_instance(module_data, 'data_loader_test', config)
+    augmentation = get_instance(module_augmentation, 'augmenter', config)
+    data_loader.transforms = augmentation.transforms
+    data_loader.dataset.transforms = data_loader.apply_transforms()
     '''
     data_loader = getattr(module_data, config['data_loader']['type'])(
         config['data_loader']['args']['data_dir'],
@@ -63,6 +67,7 @@ def main(config, resume):
         
     # get function handles of loss and metrics
     loss_fn = getattr(module_loss, config['loss'])
+    criterion = loss_fn(None) # for imbalanced datasets
     metric_fns = [getattr(module_metric, met) for met in config['metrics']]
 
     # load state dict
@@ -98,7 +103,7 @@ def main(config, resume):
             
             
             # computing loss, metrics on test set
-            loss = loss_fn(output, target)
+            loss = criterion(output, target)
             batch_size = data.shape[0]
             total_loss += loss.item() * batch_size
             for i, metric in enumerate(metric_fns):
