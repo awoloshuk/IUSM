@@ -1,6 +1,6 @@
 This is my readme.md file
 # update 06/06/2019
-- added statics and visualization packages in util
+- added statistics and visualization packages in util
 - implemented pretrained networks in model using resnet on upsampled images
 - train using weight balanced loss function for imbalanced training data
 - added a learning rate finder function to determine the learning rate with the best loss after one batch of training on the validation set
