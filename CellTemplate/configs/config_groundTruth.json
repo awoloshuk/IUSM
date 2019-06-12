@@ -23,7 +23,7 @@
         "args":{
             "data_dir": "data/GroundTruth_052219/", 
             "csv_path": "data/GroundTruth_052219/Test.csv", 
-            "batch_size": 10,
+            "batch_size": 32,
             "shuffle": false,
             "validation_split": 0.0,
             "num_workers": 2,
@@ -50,7 +50,7 @@
         }
     },
     "trainer": {
-        "epochs": 300,
+        "epochs":25,
         "save_dir": "saved/",
         "save_period": 50,
         "verbosity": 2,

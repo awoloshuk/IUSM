@@ -63,7 +63,8 @@ def visualizationOutGray(data, output, target, classes, normalized):
     plt.title("Prediction = " + str(cls) + " | Actual = " + str(classes[target_cpu[0].numpy()]) )
     data_cpu = data.to(torch.device("cpu"))
     img = unnormTensor(data_cpu[0], normalized)
-    plt.imshow(img, cmap = 'gray') 
+    plt.imshow(img, cmap = 'gray')
+    plt.pause(0.05)
 
 def plot_confusion_matrix(y_true, y_pred, classes,
                           normalize=False,

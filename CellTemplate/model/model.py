@@ -182,7 +182,6 @@ class heatmapModel(BaseModel):
     def __init__(self,num_feature=32):
         super(heatmapModel,self).__init__()
         self.num_feature=num_feature
-        
         self.layer = nn.Sequential(
             nn.Conv2d(1,self.num_feature,3,1,1),
             nn.BatchNorm2d(self.num_feature),
@@ -202,10 +201,11 @@ class heatmapModel(BaseModel):
             nn.ReLU(),
         )
         self.fc_layer = nn.Sequential(
-            nn.Linear(self.num_feature*8*7*7,1000),
+            nn.Linear(self.num_feature*8*7*7,self.num_feature*8),
             nn.ReLU(),
-            nn.Linear(1000,2)
-        )       
+            nn.Linear(self.num_feature*8,2)
+        )    
+        
         
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -221,7 +221,7 @@ class heatmapModel(BaseModel):
                 init.kaiming_normal_(m.weight.data)
                 #m.bias.data.fill_(0)
                 init.normal_(m.bias.data)
-        
+                
         
     def forward(self,x):
         out = self.layer(x)
@@ -229,5 +229,4 @@ class heatmapModel(BaseModel):
         out = self.fc_layer(out)
 
         return out
- 
-
+    
