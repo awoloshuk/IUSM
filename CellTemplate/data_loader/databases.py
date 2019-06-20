@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from PIL import Image, ImageEnhance
-
+from utils import transforms3d
 
 class templateDataset(Dataset):
     def __init__(self, csv_path, root_dir, transforms=None):
@@ -30,7 +30,6 @@ class templateDataset(Dataset):
     
     def __len__(self):
         return self.data_len
-    
 class groundTruthDataset(Dataset):
     def __init__(self, csv_path, root_dir, transforms=None):
         self.csv_data = pd.read_csv(csv_path, header = 0, engine='python')
@@ -46,20 +45,75 @@ class groundTruthDataset(Dataset):
                 if not key in count_labels: count_labels[key] = 0
                 count_labels[key] += 1 
         weights = []
+        weights2 = []
         for key in count_labels:
             weights.append(1. / count_labels[key])
-        self.weight = torch.FloatTensor(weights)
+            weights2.append(count_labels[key])
+        
+        weightsnp = np.asarray(weights)
+        weights2np = np.asarray(weights2)
+        maxnum = np.amax(weights2np)
+        weightsnp = weightsnp*maxnum
+        self.weight = torch.FloatTensor(weightsnp)
+        
+    def __getitem__(self, index):
+        img_name = os.path.join(self.root_dir, str(self.csv_data.iloc[index, 0])) #path data is in the 1rst column
+        image = io.imread(img_name)
+        image = image.astype(float)
+        #print(image.shape)
+        img_as_img = Image.fromarray(image) #convert to PIL
+        label = int(self.csv_data.iloc[index, 1])  #label is in the 2nd column
+        #if label == 3: label = 2
+        label = label - 1 # go from 1,2 to 0,1 --> not great solution
+        if self.transforms is not None:
+            img_as_tensor = self.transforms(img_as_img)
+        return img_as_tensor, label
+        
+    
+    def __len__(self):
+        return self.data_len
+    
+class groundTruthDataset3D(Dataset):
+    def __init__(self, csv_path, root_dir, transforms=None):
+        self.csv_data = pd.read_csv(csv_path, header = 0, engine='python')
+        self.csv_data.dropna(axis=0, how='any', thresh=None, subset=None, inplace=True)
+        self.root_dir = root_dir
+        self.transforms = transforms
+        self.data_len = len(self.csv_data)
+        all_labels = self.csv_data.iloc[:,1]
+        count_labels = {}
+        for item in all_labels:
+            if item: 
+                key = "class_" + str(item)
+                if not key in count_labels: count_labels[key] = 0
+                count_labels[key] += 1 
+        weights = []
+        weights2 = []
+        for key in count_labels:
+            weights.append(1. / count_labels[key])
+            weights2.append(count_labels[key])
+        
+        weightsnp = np.asarray(weights)
+        weights2np = np.asarray(weights2)
+        maxnum = np.amax(weights2np)
+        weightsnp = weightsnp*maxnum
+        self.weight = torch.FloatTensor(weightsnp)
         
     def __getitem__(self, index):
         img_name = os.path.join(self.root_dir,
                                 str(self.csv_data.iloc[index, 0])) #path data is in the 1rst column
         image = io.imread(img_name)
         image = image.astype(float)
-        img_as_img = Image.fromarray(image) #convert to PIL
+        #print(image.shape) 7x32x32
         label = int(self.csv_data.iloc[index, 1])  #label is in the 2nd column
         label = label - 1 # go from 1,2 to 0,1 --> not great solution
         if self.transforms is not None:
-            img_as_tensor = self.transforms(img_as_img)
+            for transform in self.transforms:
+                image = transform(image)
+            img_as_tensor = image
+            #img_as_tensor = image.permute(0,2,1,3) #from 1x7x32x32 to 1x32x7x32
+            #img_as_tensor = torch.unsqueeze(img_as_tensor, 0)
+            img_as_tensor = img_as_tensor.type(torch.FloatTensor)
         return img_as_tensor, label
         
     

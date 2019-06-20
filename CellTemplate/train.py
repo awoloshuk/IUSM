@@ -1,13 +1,29 @@
+import matplotlib.pyplot as plt
 import os
+import numpy as np
 import json
 import argparse
 import torch
+from torch.optim import lr_scheduler
+from tqdm import tqdm
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
 import model.metric as module_metric
 import model.model as module_arch
 from trainer import Trainer
 from utils import Logger
+from utils import util
+from utils import torchsummary
+from utils import viewTraining
+from utils import lr_finder
+from utils import classActivationMap
+import importlib
+import math
+import torchvision
+from torch.nn import functional as F
+from torch import topk
+import skimage.transform
+print("Modules loaded")
 
 
 def get_instance(module, name, config, *args):
@@ -26,8 +42,11 @@ def visualize(dataloader):
         a.set_title("Label = " +str(labels[i].numpy()), fontsize=30)
 
 def main(config, resume):
+    print("GPUs available: " + str(torch.cuda.device_count()))
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
     train_logger = Logger()
-
+    
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # setup data_loader instances
     data_loader = get_instance(module_data, 'data_loader', config)
     valid_data_loader = data_loader.split_validation()
@@ -42,7 +61,8 @@ def main(config, resume):
         print("Using CPU to train")
         
     # get function handles of loss and metrics
-    loss = getattr(module_loss, config['loss'])
+    loss = getattr(module_loss, config['loss']) #looks in model/loss.py for criterion function specified in config
+    criterion = loss(data_loader.dataset.weight.to(device)) # for imbalanced datasets
     metrics = [getattr(module_metric, met) for met in config['metrics']]
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
@@ -50,7 +70,7 @@ def main(config, resume):
     optimizer = get_instance(torch.optim, 'optimizer', config, trainable_params)
     lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler', config, optimizer)
 
-    trainer = Trainer(model, loss, metrics, optimizer,
+    trainer = Trainer(model, criterion, metrics, optimizer,
                       resume=resume,
                       config=config,
                       data_loader=data_loader,

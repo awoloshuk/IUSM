@@ -52,7 +52,7 @@ class CAMgenerator():
         self.final_layer = model._modules.get(hm_layers['final_layer'])
         self.fc_layer = hm_layers['fc_layer']
         self.fc_num = hm_layers['fc_num']
-        self.model = model
+        self.model = model.eval()
         self.activated_features = SaveFeatures(self.final_layer[hm_layers['conv_num']])
         
         

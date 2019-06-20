@@ -123,6 +123,7 @@ class BaseTrainer:
                     best = True
                 else:
                     not_improved_count += 1
+                    print("Model has not improved in -------------| " + str(not_improved_count) + " epochs")
 
                 if not_improved_count > self.early_stop:
                     self.logger.info("Validation performance didn\'t improve for {} epochs. "

@@ -7,6 +7,7 @@ import json
 import math
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
+from PIL import Image
 
 def ensure_dir(path):
     if not os.path.exists(path):
@@ -25,8 +26,27 @@ def visualizeBatch(dataloader, normalized):
     Visualize one image as its own figure
     '''
     images, labels = next(iter(dataloader))
+    #print(images.shape) # [batch size, channels, depth, height, width] 
+    
+    img = images[0]
+    if len(img.shape) > 3: 
+        #img = img.permute(0,2,1,3)
+        img = img.numpy()
+        #print(img.shape) #1,7,32,32
+        for i in range(img.shape[1]):
+            img32 = img[0][i]
+            #print(img32.shape)
+            #img32 = (img32 + abs(np.amin(img32))) / (abs(np.amin(img32))+abs(np.amax(img32)))
+            img32 = Image.fromarray(img32)
+            plt.imshow(img32)
+            plt.show() 
+        return
+    
     img = unnormTensor(images[0], normalized)
-    plt.imshow(img)
+    plt.imshow(img, cmap='gray')
+    plt.show()
+    plt.hist(np.ravel(img), 255, range=[0.01,1])
+    plt.show()
     fig = plt.figure(figsize=(40, 40))
     batch = math.ceil(math.sqrt(dataloader.batch_size))
     for i in range(len(images)):

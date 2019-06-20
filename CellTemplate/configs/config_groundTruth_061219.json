@@ -1,0 +1,65 @@
+{
+    "name": "groundTruth_061319_total",
+    "n_gpu": 1,
+    
+    "arch": {
+        "type": "heatmapModel64",
+        "args": {}
+    },
+    "data_loader": {
+        "type": "groundTruth_DataLoader64",
+        "args":{
+            "data_dir": "data/groundTruth_061319_total/",
+            "csv_path": "data/groundTruth_061319_total/Train.csv",
+            "batch_size": 64,
+            "shuffle": true,
+            "validation_split": 0.15,
+            "num_workers": 2,
+            "training": true
+        }
+    },
+    "data_loader_test": { 
+        "type": "groundTruth_DataLoader64",
+        "args":{
+            "data_dir": "data/groundTruth_061319_total/", 
+            "csv_path": "data/groundTruth_061319_total/Test.csv", 
+            "batch_size": 64,
+            "shuffle": false,
+            "validation_split": 0.0,
+            "num_workers": 2,
+            "training": false
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": "cross_entropy_loss",
+    "metrics": [
+        "my_metric", "f1", "balanced_accuracy", "precision", "recall"
+    ],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 20,
+            "gamma": 0.5
+        }
+    },
+    "trainer": {
+        "epochs":200,
+        "save_dir": "saved/",
+        "save_period": 50,
+        "verbosity": 2,
+        
+        "monitor": "min val_loss",
+        "early_stop": 50,
+        
+        "tensorboardX": false,
+        "log_dir": "saved/runs"
+    }
+}
+
