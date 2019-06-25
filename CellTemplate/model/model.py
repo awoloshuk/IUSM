@@ -290,11 +290,11 @@ class threeDmodel(BaseModel):
         self.fc5 = nn.Linear(self.num_feature*8*1*4*4, self.num_feature*8)
         self.relu = nn.LeakyReLU()
         self.batch0=nn.BatchNorm1d(self.num_feature*8)
-        self.drop=nn.Dropout(p=0.15)
+        self.drop=nn.Dropout(p=0.5)
         self.fc6 = nn.Linear(self.num_feature*8, self.num_feature*4)
         self.relu1 = nn.LeakyReLU()
         self.batch1=nn.BatchNorm1d(self.num_feature*4)
-        self.drop1=nn.Dropout(p=0.15)     
+        self.drop1=nn.Dropout(p=0.5)     
         self.fc7 = nn.Linear(self.num_feature*4, num_classes)
         
         for m in self.modules():
