@@ -68,9 +68,9 @@ class groundTruth_DataLoader(BaseDataLoader):
 class groundTruth_DataLoader3D(BaseDataLoader):
     def __init__(self, csv_path, data_dir, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True):
         rs = np.random.RandomState()
-        trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.RandomContrast(rs, factor = 0.1, execution_probability=0.25), t3d.ElasticDeformation(rs, 3), t3d.ToTensor(rs)]
-        #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.ToTensor(rs)]
-        trsfm_test = [t3d.ToTensor(rs)]
+        trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.RandomContrast(rs, factor = 0.1, execution_probability=0.25), t3d.ElasticDeformation(rs, 3), t3d.ToTensor(rs), t3d.Normalize(0,1)]
+        #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs),  t3d.ToTensor(rs)]
+        trsfm_test = [t3d.ToTensor(rs), t3d.Normalize(0,1)]
         
         if training == True:
             trsfm = trsfm_train
