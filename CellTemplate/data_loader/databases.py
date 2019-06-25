@@ -12,7 +12,7 @@ from utils import transforms3d
 import h5py
 
 class hdf5dataset(Dataset):
-    def __init__(self, h5_path, shape = (7,32,32), training = True transforms=None):
+    def __init__(self, h5_path, shape = (7,32,32), training = True, transforms=None):
         st = pd.HDFStore(h5_path)
         if training:
             self.data = st['train_data'].values
@@ -22,6 +22,7 @@ class hdf5dataset(Dataset):
             self.label = st['test_labels'].values
         self.transforms = transforms
         self.data_len = self.data.shape[0]
+        self.shape = shape
         
         count_labels = {}
         for item in self.label:
@@ -46,9 +47,9 @@ class hdf5dataset(Dataset):
         #TODO: validate this algorithm --> particularly make sure the reshape matches
         # in java, we do for slice, for x, for y --> slice changes slowest
         num_pixels = 1
-        for dim in shape: num_pixels = num_pixels*dim
+        for dim in self.shape: num_pixels = num_pixels*dim
         img = self.data[index, 0:num_pixels]
-        img = np.reshape(img, shape, order = 'C') #last index of shape changes fastest
+        img = np.reshape(img, self.shape, order = 'C') #last index of shape changes fastest
         img = img.astype(float)
         label = self.label[index] - 1
         

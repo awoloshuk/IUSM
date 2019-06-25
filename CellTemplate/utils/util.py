@@ -8,6 +8,7 @@ import math
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 from PIL import Image
+from ipywidgets import *
 
 def ensure_dir(path):
     if not os.path.exists(path):
@@ -20,6 +21,7 @@ def visualizeDataset(dataloader):
     images, labels = next(iter(dataloader))
     plt.imshow(torchvision.utils.make_grid(images, nrow=8).permute(1, 2, 0))
     
+    
 def visualizeBatch(dataloader, normalized):
     '''
     Visualize all the images in a batch in a subplot
@@ -31,8 +33,20 @@ def visualizeBatch(dataloader, normalized):
     img = images[0]
     if len(img.shape) > 3: 
         #img = img.permute(0,2,1,3)
-        img = img.numpy()
-        #print(img.shape) #1,7,32,32
+        img = np.squeeze(img.numpy())
+        lab = np.squeeze(labels[0])
+        classes = ['glom', 'pct', 'vasculature']
+        def update_layer(layer = 0):
+            plt.imshow(img[layer])
+            plt.show()
+            
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        plt.title("Class is : " + classes[lab])
+        plt.imshow(img[0])
+        interact(update_layer, layer=widgets.IntSlider(min=0,max=img.shape[0]-1,step=1,value=0))
+        
+        '''
         for i in range(img.shape[1]):
             img32 = img[0][i]
             #print(img32.shape)
@@ -40,6 +54,7 @@ def visualizeBatch(dataloader, normalized):
             img32 = Image.fromarray(img32)
             plt.imshow(img32)
             plt.show() 
+            '''
         return
     
     img = unnormTensor(images[0], normalized)
