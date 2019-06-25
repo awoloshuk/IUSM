@@ -9,6 +9,67 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from PIL import Image, ImageEnhance
 from utils import transforms3d
+import h5py
+
+class hdf5dataset(Dataset):
+    def __init__(self, h5_path, shape = (7,32,32), training = True transforms=None):
+        st = pd.HDFStore(h5_path)
+        if training:
+            self.data = st['train_data'].values
+            self.label = st['train_labels'].values
+        else:
+            self.data = st['test_data'].values
+            self.label = st['test_labels'].values
+        self.transforms = transforms
+        self.data_len = self.data.shape[0]
+        
+        count_labels = {}
+        for item in self.label:
+            if item: 
+                key = "class_" + str(item)
+                if not key in count_labels: count_labels[key] = 0
+                count_labels[key] += 1 
+        weights = []
+        weights2 = []
+        for key in count_labels:
+            weights.append(1. / count_labels[key])
+            weights2.append(count_labels[key])
+        
+        weightsnp = np.asarray(weights)
+        weights2np = np.asarray(weights2)
+        maxnum = np.amax(weights2np)
+        weightsnp = weightsnp*maxnum
+        self.weight = torch.FloatTensor(weightsnp)
+            
+        
+    def __getitem__(self, index):
+        #TODO: validate this algorithm --> particularly make sure the reshape matches
+        # in java, we do for slice, for x, for y --> slice changes slowest
+        num_pixels = 1
+        for dim in shape: num_pixels = num_pixels*dim
+        img = self.data[index, 0:num_pixels]
+        img = np.reshape(img, shape, order = 'C') #last index of shape changes fastest
+        img = img.astype(float)
+        label = self.label[index] - 1
+        
+        #img_as_img = Image.fromarray(img) #convert to PIL
+        if self.transforms is not None:
+            for transform in self.transforms:
+                image = transform(img)
+            img_as_tensor = image
+            #img_as_tensor = image.permute(0,2,1,3) #from 1x7x32x32 to 1x32x7x32
+            #img_as_tensor = torch.unsqueeze(img_as_tensor, 0)
+            img_as_tensor = img_as_tensor.type(torch.FloatTensor)
+        return img_as_tensor, label
+        '''
+        if self.transforms is not None:
+            img_as_tensor = self.transforms(img_as_img)
+        return img_as_tensor, label
+        '''
+        
+    
+    def __len__(self):
+        return self.data_len
 
 class templateDataset(Dataset):
     def __init__(self, csv_path, root_dir, transforms=None):

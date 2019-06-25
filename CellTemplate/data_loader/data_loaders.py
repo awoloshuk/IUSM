@@ -7,6 +7,24 @@ import torch
 from utils import transforms3d as t3d
 import numpy as np
 
+class hdf5_3d_dataloader(BaseDataLoader):
+    def __init__(self, hdf5_path, batch_size, shuffle=True, shape = (7,32,32), validation_split=0.0, num_workers=1, training=True):
+        rs = np.random.RandomState()
+        #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.RandomContrast(rs, factor = 0.1, execution_probability=0.25), t3d.ElasticDeformation(rs, 3), t3d.ToTensor(rs)]
+        trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.ToTensor(rs)]
+        trsfm_test = [t3d.ToTensor(rs)]
+        
+        if training == True:
+            trsfm = trsfm_train
+        else:
+            trsfm = trsfm_test       
+        
+        self.hdf5_path = hdf5_path
+        self.batch_size = batch_size
+        self.shape = shape
+        importlib.reload(databases) #used to get load any recent changes from database class
+        self.dataset = databases.groundTruthDataset3D(hdf5_path, shape = self.shape, training = training transforms=trsfm)
+        super(hdf5_3d_dataloader, self).__init__(self.dataset, hdf5_path, shuffle, validation_split, num_workers)
 
 class MnistDataLoader(BaseDataLoader):
     """
@@ -68,8 +86,8 @@ class groundTruth_DataLoader(BaseDataLoader):
 class groundTruth_DataLoader3D(BaseDataLoader):
     def __init__(self, csv_path, data_dir, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True):
         rs = np.random.RandomState()
-        trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.RandomContrast(rs, factor = 0.1, execution_probability=0.25), t3d.ElasticDeformation(rs, 3), t3d.ToTensor(rs)]
-        #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.ToTensor(rs)]
+        #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.RandomContrast(rs, factor = 0.1, execution_probability=0.25), t3d.ElasticDeformation(rs, 3), t3d.ToTensor(rs)]
+        trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.ToTensor(rs)]
         trsfm_test = [t3d.ToTensor(rs)]
         
         if training == True:
