@@ -9,8 +9,8 @@
     "data_loader": {
         "type": "groundTruth_DataLoader64",
         "args":{
-            "data_dir": "data/groundTruth_061319_total/",
-            "csv_path": "data/groundTruth_061319_total/Train.csv",
+            "data_dir": "../data/groundTruth_061319_total/",
+            "csv_path": "../data/groundTruth_061319_total/Train.csv",
             "batch_size": 64,
             "shuffle": true,
             "validation_split": 0.15,
@@ -21,10 +21,10 @@
     "data_loader_test": { 
         "type": "groundTruth_DataLoader64",
         "args":{
-            "data_dir": "data/groundTruth_061319_total/", 
-            "csv_path": "data/groundTruth_061319_total/Test.csv", 
+            "data_dir": "../data/groundTruth_061319_total/", 
+            "csv_path": "../data/groundTruth_061319_total/Test.csv", 
             "batch_size": 32,
-            "shuffle": false,
+            "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 2,
             "training": false
@@ -51,7 +51,7 @@
     },
     "trainer": {
         "epochs":500,
-        "save_dir": "saved/",
+        "save_dir": "../saved/",
         "save_period": 100,
         "verbosity": 2,
         
@@ -59,7 +59,7 @@
         "early_stop": 500,
         
         "tensorboardX": false,
-        "log_dir": "saved/runs"
+        "log_dir": "../saved/runs"
     }
 }
 
