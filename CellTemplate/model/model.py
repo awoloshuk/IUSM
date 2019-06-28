@@ -179,7 +179,7 @@ class groundTruthModel(BaseModel):
     
     
 class heatmapModel(BaseModel):
-    def __init__(self,num_feature=32):
+    def __init__(self,num_feature=32, num_classes=2):
         super(heatmapModel,self).__init__()
         self.num_feature=num_feature
         self.layer = nn.Sequential(
@@ -203,7 +203,7 @@ class heatmapModel(BaseModel):
         self.fc_layer = nn.Sequential(
             nn.Linear(self.num_feature*8*7*7,self.num_feature*8),
             nn.ReLU(),
-            nn.Linear(self.num_feature*8,2)
+            nn.Linear(self.num_feature*8, num_classes)
         )    
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -219,8 +219,11 @@ class heatmapModel(BaseModel):
                 
         
     def forward(self,x):
+        print(x.shape)
         out = self.layer(x)
+        print(out.shape)
         out = out.view(x.size()[0],-1)
+        print(out.shape)
         out = self.fc_layer(out)
         return out
 

@@ -55,12 +55,17 @@ class hdf5dataset(Dataset):
         
         #img_as_img = Image.fromarray(img) #convert to PIL
         if self.transforms is not None:
-            for transform in self.transforms:
-                image = transform(img)
-            img_as_tensor = image
-            #img_as_tensor = image.permute(0,2,1,3) #from 1x7x32x32 to 1x32x7x32
-            #img_as_tensor = torch.unsqueeze(img_as_tensor, 0)
-            img_as_tensor = img_as_tensor.type(torch.FloatTensor)
+            if len(self.shape) > 2:
+                for transform in self.transforms:
+                    image = transform(img)
+                img_as_tensor = image
+                #img_as_tensor = image.permute(0,2,1,3) #from 1x7x32x32 to 1x32x7x32
+                #img_as_tensor = torch.unsqueeze(img_as_tensor, 0)
+                img_as_tensor = img_as_tensor.type(torch.FloatTensor)
+            else:
+                image = img.astype(float)
+                img_as_img = Image.fromarray(image)
+                img_as_tensor = self.transforms(img_as_img)
         return img_as_tensor, label
         '''
         if self.transforms is not None:

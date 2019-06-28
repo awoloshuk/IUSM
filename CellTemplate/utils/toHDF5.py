@@ -31,6 +31,10 @@ def main(args):
     filename = os.path.join(args.dir, filename)
     store = pd.HDFStore(filename)
     count = 0
+    means = []
+    stdevs = []
+    num_images_train = 0
+    num_images_test = 0
     for csv in csv_files:
         csv_path = os.path.join(args.dir, csv)
         print("Now loading: " + csv_path)
@@ -44,8 +48,10 @@ def main(args):
         
 
         train_img = csv_data.iloc[train_ind,1:] #first column is label
+        train_img = train_img.dropna(axis=1)
         train_label = csv_data.iloc[train_ind,0]
         test_img = csv_data.iloc[test_ind,1:] #first column is label
+        test_img = test_img.dropna(axis=1)
         test_label = csv_data.iloc[test_ind,0]
         print(train_img.shape)
         print(test_img.shape)
@@ -53,6 +59,11 @@ def main(args):
         store.append('train_labels', train_label)
         store.append('test_data', test_img)
         store.append('test_labels', test_label)
+        means.append(np.mean(train_img.to_numpy()))
+        stdevs.append(np.std(train_img.to_numpy()))
+        num_images_train = num_images_train + train_img.shape[0]
+        num_images_test = num_images_test + test_img.shape[0]
+        count = count +1
         del csv_data
         '''
         count = 0
@@ -75,7 +86,9 @@ def main(args):
             '''
             
 
-        
+    metadata = pd.DataFrame({'TrainingNum': num_images_train, 'TestingNum': num_images_test, \
+                'TrainingMean': np.mean(means), 'TrainingStd': np.mean(stdevs)}, index=[0])      
+    store.append('Metadata', metadata)
     
     store.close()       
     with h5py.File(filename, "r") as f:
@@ -84,6 +97,9 @@ def main(args):
         print("===============")
         keys = list(f.keys())
         print("{0} keys in this file: {1}".format(len(keys), keys))
+        print("Training images: " + str(num_images_train))
+        print("Testing images: " + str(num_images_test))
+        print("Training image mean = " + str(np.mean(means)) + " and std = " + str(np.mean(stdevs)))
             
     
 

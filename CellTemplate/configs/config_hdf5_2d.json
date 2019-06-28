@@ -1,18 +1,18 @@
 {
-    "name": "IMPRS_hdf5_volume_mask",
+    "name": "IMPRS_hdf5_sumproj_mask",
     "n_gpu": 1,
     
     "arch": {
-        "type": "threeDmodel",
+        "type": "heatmapModel64",
         "args": {
         "num_classes": 2
         }
     },
     "data_loader": {
-        "type": "hdf5_3d_dataloader",
+        "type": "hdf5_2d_dataloader",
         "args":{
-            "hdf5_path": "../data/imprs_hdf5/mask_volume_dataset.h5",
-            "shape": [7,32,32],
+            "hdf5_path": "../data/imprs_hdf5/mask_sumproj_dataset.h5",
+            "shape": [32,32],
             "batch_size": 128,
             "shuffle": true,
             "validation_split": 0.15,
@@ -21,10 +21,10 @@
         }
     },
     "data_loader_test": { 
-        "type": "hdf5_3d_dataloader",
+        "type": "hdf5_2d_dataloader",
         "args":{
-            "hdf5_path": "../data/imprs_hdf5/mask_volume_dataset.h5",
-            "shape": [7,32,32],
+            "hdf5_path": "../data/imprs_hdf5/mask_sumproj_dataset.h5",
+            "shape": [32,32],
             "batch_size": 64,
             "shuffle": false,
             "validation_split": 0.0,
@@ -35,7 +35,7 @@
     "optimizer": {
         "type": "Adam",
         "args":{
-            "lr": 0.001,
+            "lr": 0.0001,
             "weight_decay": 0,
             "amsgrad": true
         }
@@ -47,14 +47,14 @@
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
-            "step_size": 50,
-            "gamma": 0.5
+            "step_size": 100,
+            "gamma": 0.25
         }
     },
     "trainer": {
-        "epochs":100,
+        "epochs":500,
         "save_dir": "../saved/",
-        "save_period": 50,
+        "save_period": 100,
         "verbosity": 1,
         
         "monitor": "min val_loss",

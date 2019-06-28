@@ -7,12 +7,63 @@ import torch
 from utils import transforms3d as t3d
 import numpy as np
 
+
+class hdf5_2d_dataloader(BaseDataLoader):
+    def __init__(self, hdf5_path, batch_size, shuffle=True, shape = [7,32,32], validation_split=0.0, num_workers=1, training=True):
+        trsfm_train = transforms.Compose([
+            transforms.Resize(90),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomAffine(20, translate=(.05,.05), scale=(0.99,1.01), shear=None, resample=False, fillcolor=0),
+            transforms.CenterCrop(64),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[126.145], std=[0.84]), 
+        ])
+        trsfm_test = transforms.Compose([
+            transforms.Resize(90),
+            transforms.CenterCrop(64),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[126.145], std=[0.84]), 
+        ])
+        
+        '''
+        means and std for IMPRS dataset
+        allDAPI_volume 141.42 18.85
+        mask_avgproj 128.16, 0.54
+        mask_maxproj 128.51, 1.23
+        mask_sumproj 126.145, 31.49
+        mask_volume 128.23, 0.84
+        '''
+        
+        if training == True:
+            trsfm = trsfm_train
+        else:
+            trsfm = trsfm_test       
+        
+        self.hdf5_path = hdf5_path
+        self.batch_size = batch_size
+        self.shape = shape
+        importlib.reload(databases) #used to get load any recent changes from database class
+        self.dataset = databases.hdf5dataset(hdf5_path, shape = self.shape, training = training, transforms=trsfm)
+        super(hdf5_2d_dataloader, self).__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
+        #base data loader requires (dataset, batchsize, shuffle, validation_split, numworkers)
+
 class hdf5_3d_dataloader(BaseDataLoader):
     def __init__(self, hdf5_path, batch_size, shuffle=True, shape = [7,32,32], validation_split=0.0, num_workers=1, training=True):
         rs = np.random.RandomState()
-        trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.RandomContrast(rs, factor = 0.2, execution_probability=0.25), t3d.ElasticDeformation(rs, 3), t3d.GaussianNoise(rs, 3), t3d.ToTensor(rs)]
+        mean = 128.23
+        stdev = 0.84
+        trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.RandomContrast(rs, factor = 0.2, execution_probability=0.25), t3d.ElasticDeformation(rs, 3), t3d.GaussianNoise(rs, 3), t3d.Normalize(mean, stdev), t3d.ToTensor(rs)]
         #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.ToTensor(rs)]
-        trsfm_test = [t3d.ToTensor(rs)]
+        trsfm_test = [t3d.Normalize(mean, stdev), t3d.ToTensor(rs)]
+        
+        '''
+        means and std for IMPRS dataset
+        allDAPI_volume 141.42 18.85
+        mask_avgproj 128.16, 0.54
+        mask_maxproj 128.51, 1.23
+        mask_sumproj 126.145, 31.49
+        mask_volume 128.23, 0.84
+        '''
         
         if training == True:
             trsfm = trsfm_train
