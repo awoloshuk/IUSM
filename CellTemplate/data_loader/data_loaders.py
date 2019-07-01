@@ -6,6 +6,8 @@ import importlib
 import torch
 from utils import transforms3d as t3d
 import numpy as np
+import importlib
+importlib.reload(t3d)
 
 
 class hdf5_2d_dataloader(BaseDataLoader):
@@ -50,11 +52,21 @@ class hdf5_2d_dataloader(BaseDataLoader):
 class hdf5_3d_dataloader(BaseDataLoader):
     def __init__(self, hdf5_path, batch_size, shuffle=True, shape = [7,32,32], validation_split=0.0, num_workers=1, training=True):
         rs = np.random.RandomState()
-        mean = 128.23
-        stdev = 0.84
-        trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.RandomContrast(rs, factor = 0.2, execution_probability=0.25), t3d.ElasticDeformation(rs, 3), t3d.GaussianNoise(rs, 3), t3d.Normalize(mean, stdev), t3d.ToTensor(rs)]
+        mean = 140.61
+        stdev = 17.60
+        trsfm_train = [#t3d.Downsample(rs, factor = 4.0, order=2),
+                       t3d.RandomFlip(rs),
+                       t3d.RandomRotate90(rs), 
+                       t3d.RandomContrast(rs, factor = 0.2, execution_probability=0.2), 
+                       t3d.ElasticDeformation(rs, 3, alpha=20, sigma=3, execution_probability=0.5), 
+                       #t3d.GaussianNoise(rs, 3), 
+                       t3d.Normalize(mean, stdev), 
+                       t3d.ToTensor(rs)]
+        
         #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.ToTensor(rs)]
-        trsfm_test = [t3d.Normalize(mean, stdev), t3d.ToTensor(rs)]
+        trsfm_test = [#t3d.Downsample(rs, factor = 4.0, order=2),
+                      t3d.Normalize(mean, stdev), 
+                      t3d.ToTensor(rs)]
         
         '''
         means and std for IMPRS dataset
@@ -63,8 +75,8 @@ class hdf5_3d_dataloader(BaseDataLoader):
         mask_maxproj 128.51, 1.23
         mask_sumproj 126.145, 31.49
         mask_volume 128.23, 0.84
+        allDAPI_volume0701 140.61 17.60
         '''
-        
         if training == True:
             trsfm = trsfm_train
         else:

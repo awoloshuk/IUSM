@@ -6,8 +6,24 @@ from scipy.ndimage.filters import convolve
 from skimage.filters import gaussian
 from skimage.segmentation import find_boundaries
 from torchvision.transforms import Compose
+from scipy.ndimage import zoom
+from scipy.misc import imresize
 
 # https://github.com/wolny/pytorch-3dunet/blob/master/augment/transforms.py
+
+class Downsample:
+    def __init__(self,random_state, factor = 2.0, order = 3):
+        self.factor = 1.0 / factor
+        self.order = order
+    def __call__(self, m):
+        assert m.ndim in [3, 4], 'Supports only 3D (DxHxW) or 4D (CxDxHxW) images'
+        original_shape = m.shape
+        new_array = zoom(m, self.factor, order=self.order) #reduce dimensions e.g. 32x32 --> 16x16
+        new_factor = [0,0,0]
+        for i in range(m.ndim):
+            new_factor[i] = m.shape[i] / new_array.shape[i]
+        downsampled_array = zoom(new_array, tuple(new_factor), order=self.order) #16x16--> 32x32
+        return downsampled_array #TODO: assert that this will return exact same size as input image
 
 class RandomFlip:
     """
@@ -106,7 +122,7 @@ class RandomContrast:
     def __call__(self, m):
         if self.random_state.uniform() < self.execution_probability:
             brightness_factor = self.factor + self.random_state.uniform()
-            return np.clip(m * brightness_factor, 0, 1)
+            return np.clip(m * brightness_factor, 0, 255)
 
         return m
 

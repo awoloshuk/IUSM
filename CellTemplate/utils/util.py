@@ -8,7 +8,7 @@ import math
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 from PIL import Image
-from ipywidgets import *
+from ipywidgets import widgets
 
 def ensure_dir(path):
     if not os.path.exists(path):
@@ -34,6 +34,7 @@ def visualizeBatch(dataloader, normalized):
     if len(img.shape) > 3: 
         #img = img.permute(0,2,1,3)
         img = np.squeeze(img.numpy())
+        
         lab = np.squeeze(labels[0])
         classes = ['glom', 'pct', 'vasculature']
         def update_layer(layer = 0):
