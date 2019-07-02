@@ -15,16 +15,16 @@ class hdf5_2d_dataloader(BaseDataLoader):
         trsfm_train = transforms.Compose([
             transforms.Resize(90),
             transforms.RandomHorizontalFlip(),
-            transforms.RandomAffine(20, translate=(.05,.05), scale=(0.99,1.01), shear=None, resample=False, fillcolor=0),
+            transforms.RandomAffine(45, translate=(.05,.05), scale=(0.95,1.05), shear=None, resample=False, fillcolor=0),
             transforms.CenterCrop(64),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[126.145], std=[0.84]), 
+            transforms.Normalize(mean=[126.145], std=[31.49]), 
         ])
         trsfm_test = transforms.Compose([
             transforms.Resize(90),
             transforms.CenterCrop(64),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[126.145], std=[0.84]), 
+            transforms.Normalize(mean=[126.145], std=[31.49]), 
         ])
         
         '''
@@ -52,21 +52,26 @@ class hdf5_2d_dataloader(BaseDataLoader):
 class hdf5_3d_dataloader(BaseDataLoader):
     def __init__(self, hdf5_path, batch_size, shuffle=True, shape = [7,32,32], validation_split=0.0, num_workers=1, training=True):
         rs = np.random.RandomState()
-        mean = 140.61
-        stdev = 17.60
-        trsfm_train = [#t3d.Downsample(rs, factor = 4.0, order=2),
+        mean = 141.42
+        stdev = 18.85
+        trsfm_train = [t3d.shotNoise(rs, alpha = 1.0),
+                       #t3d.Downsample(rs, factor = 4.0, order=2),
                        t3d.RandomFlip(rs),
                        t3d.RandomRotate90(rs), 
                        t3d.RandomContrast(rs, factor = 0.2, execution_probability=0.2), 
                        t3d.ElasticDeformation(rs, 3, alpha=20, sigma=3, execution_probability=0.5), 
                        #t3d.GaussianNoise(rs, 3), 
-                       t3d.Normalize(mean, stdev), 
-                       t3d.ToTensor(rs)]
+                       #t3d.Normalize(mean, stdev), 
+                       t3d.RangeNormalize(),
+                       t3d.ToTensor(True)]
         
         #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.ToTensor(rs)]
-        trsfm_test = [#t3d.Downsample(rs, factor = 4.0, order=2),
-                      t3d.Normalize(mean, stdev), 
-                      t3d.ToTensor(rs)]
+        trsfm_test = [t3d.shotNoise(rs, alpha = 1.0),
+                      #t3d.GaussianNoise(rs, 20),
+                      #t3d.Downsample(rs, factor = 4.0, order=2),
+                      #t3d.Normalize(mean, stdev), 
+                      t3d.RangeNormalize(),
+                      t3d.ToTensor(True)]
         
         '''
         means and std for IMPRS dataset

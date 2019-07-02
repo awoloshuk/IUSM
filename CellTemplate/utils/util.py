@@ -8,7 +8,7 @@ import math
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 from PIL import Image
-from ipywidgets import widgets
+from ipywidgets import widgets, interact
 
 def ensure_dir(path):
     if not os.path.exists(path):
@@ -38,13 +38,13 @@ def visualizeBatch(dataloader, normalized):
         lab = np.squeeze(labels[0])
         classes = ['glom', 'pct', 'vasculature']
         def update_layer(layer = 0):
-            plt.imshow(img[layer])
+            plt.imshow(img[layer], cmap ='gray')
             plt.show()
             
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         plt.title("Class is : " + classes[lab])
-        plt.imshow(img[0])
+        plt.imshow(img[0], cmap ='gray')
         interact(update_layer, layer=widgets.IntSlider(min=0,max=img.shape[0]-1,step=1,value=0))
         
         '''

@@ -11,6 +11,25 @@ from scipy.misc import imresize
 
 # https://github.com/wolny/pytorch-3dunet/blob/master/augment/transforms.py
 
+class shotNoise:
+    def __init__(self,random_state, alpha = 1.0):
+        '''
+        adds poisson noise to image and decrease signal of original image by a factor of alpha
+        note that alpha=0.0 does not add noise
+        needs to be used with range normalization
+        '''
+        self.alpha = alpha
+        
+    def __call__(self, m):
+        #TODO: this should be have an execution probability for data augmentation
+        assert m.ndim in [3, 4], 'Supports only 3D (DxHxW) or 4D (CxDxHxW) images'
+        noise = np.random.poisson(m) - m
+        #print(np.amax(m) / np.amax(noise))
+        noise_img = m*self.alpha + noise
+        return noise_img.astype(int)
+
+
+
 class Downsample:
     def __init__(self,random_state, factor = 2.0, order = 3):
         self.factor = 1.0 / factor
@@ -23,7 +42,7 @@ class Downsample:
         for i in range(m.ndim):
             new_factor[i] = m.shape[i] / new_array.shape[i]
         downsampled_array = zoom(new_array, tuple(new_factor), order=self.order) #16x16--> 32x32
-        return downsampled_array #TODO: assert that this will return exact same size as input image
+        return downsampled_array 
 
 class RandomFlip:
     """

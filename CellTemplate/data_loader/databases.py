@@ -14,7 +14,6 @@ import h5py
 class hdf5dataset(Dataset):
     def __init__(self, h5_path, shape = (7,32,32), training = True, transforms=None):
         st = pd.HDFStore(h5_path)
-        self.noise = False
         if training:
             self.data = st['train_data'].values
             self.label = st['train_labels'].values
@@ -54,8 +53,6 @@ class hdf5dataset(Dataset):
         img = img.astype(float)
         label = self.label[index] - 1
         
-        if self.noise:
-            img = np.random.poisson(lam=img, size=None)
         
         
         #img_as_img = Image.fromarray(img) #convert to PIL
