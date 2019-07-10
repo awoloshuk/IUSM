@@ -12,21 +12,28 @@ from scipy.misc import imresize
 # https://github.com/wolny/pytorch-3dunet/blob/master/augment/transforms.py
 
 class shotNoise:
-    def __init__(self,random_state, alpha = 1.0):
+    def __init__(self,random_state, alpha = 1.0, execution_prob = 0.3):
         '''
         adds poisson noise to image and decrease signal of original image by a factor of alpha
         note that alpha=0.0 does not add noise
         needs to be used with range normalization
         '''
         self.alpha = alpha
+        self.rs = random_state
+        self.execution_prob = execution_prob
         
     def __call__(self, m):
         #TODO: this should be have an execution probability for data augmentation
         assert m.ndim in [3, 4], 'Supports only 3D (DxHxW) or 4D (CxDxHxW) images'
-        noise = np.random.poisson(m) - m
-        #print(np.amax(m) / np.amax(noise))
-        noise_img = m*self.alpha + noise
-        return noise_img.astype(int)
+        if self.rs.uniform() < self.execution_prob:
+            alpha = self.rs.uniform(self.alpha, 1.0)
+            if self.execution_prob == 1.0: alpha = self.alpha
+            noise = np.random.poisson(m) - m
+            #print(np.amax(m) / np.amax(noise))
+            noise_img = m*alpha + noise
+            return noise_img.astype(int)
+        else:
+            return m
 
 
 

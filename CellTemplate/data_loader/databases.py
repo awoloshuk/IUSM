@@ -14,6 +14,7 @@ import h5py
 class hdf5dataset(Dataset):
     def __init__(self, h5_path, shape = (7,32,32), training = True, transforms=None):
         st = pd.HDFStore(h5_path)
+        self.store = st
         if training:
             self.data = st['train_data'].values
             self.label = st['train_labels'].values
@@ -42,7 +43,10 @@ class hdf5dataset(Dataset):
         weightsnp = weightsnp*maxnum
         self.weight = torch.FloatTensor(weightsnp)
             
-        
+    def getIds(self):
+        ids = self.store['test_ids'].values
+        return ids
+    
     def __getitem__(self, index):
         #TODO: validate this algorithm --> particularly make sure the reshape matches
         # in java, we do for slice, for x, for y --> slice changes slowest

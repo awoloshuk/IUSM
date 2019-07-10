@@ -1,5 +1,5 @@
 {
-    "name": "IMPRS_hdf5_volume_AllDAPI_noise",
+    "name": "IMPRS_hdf5_volume_AllDAPI_overlay",
     "n_gpu": 1,
     
     "arch": {
@@ -12,7 +12,7 @@
     "data_loader": {
         "type": "hdf5_3d_dataloader",
         "args":{
-            "hdf5_path": "../data/imprs_hdf5/allDAPI_volume_dataset.h5",
+            "hdf5_path": "../data/imprs_hdf5/overlay_dataset.h5",
             "shape": [7,32,32],
             "batch_size": 64,
             "shuffle": true,
@@ -24,7 +24,7 @@
     "data_loader_test": { 
         "type": "hdf5_3d_dataloader",
         "args":{
-            "hdf5_path": "../data/imprs_hdf5/allDAPI_volume_dataset.h5",
+            "hdf5_path": "../data/imprs_hdf5/overlay_dataset.h5",
             "shape": [7,32,32],
             "batch_size": 64,
             "shuffle": false,
