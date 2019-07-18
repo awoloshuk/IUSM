@@ -52,17 +52,17 @@ class hdf5_2d_dataloader(BaseDataLoader):
 class hdf5_3d_dataloader(BaseDataLoader):
     def __init__(self, hdf5_path, batch_size, shuffle=True, shape = [7,32,32], validation_split=0.0, num_workers=1, training=True):
         rs = np.random.RandomState()
-        mean = 141.42
-        stdev = 18.85
-        trsfm_train = [t3d.shotNoise(rs, alpha = 0.2, execution_prob = 1.0), #note: shotnoise is not an augmentation yet
+        mean = 143.68
+        stdev = 23.53
+        trsfm_train = [t3d.shotNoise(rs, alpha = 0.7, execution_prob = 0.2), #note: shotnoise is not an augmentation yet
                        #t3d.Downsample(rs, factor = 4.0, order=2),
                        t3d.RandomFlip(rs),
                        t3d.RandomRotate90(rs), 
-                       t3d.RandomContrast(rs, factor = 0.8, execution_probability=0.2), 
-                       t3d.ElasticDeformation(rs, 3, alpha=20, sigma=3, execution_probability=0.3), 
+                       t3d.RandomContrast(rs, factor = 0.8, execution_probability=0.25), 
+                       t3d.ElasticDeformation(rs, 3, alpha=20, sigma=3, execution_probability=0.25), 
                        #t3d.GaussianNoise(rs, 3), 
-                       #t3d.Normalize(mean, stdev), 
-                       t3d.RangeNormalize(),
+                       t3d.Normalize(mean, stdev), 
+                       #t3d.RangeNormalize(),
                        t3d.ToTensor(True)]
         
         #trsfm_train = [t3d.RandomFlip(rs),t3d.RandomRotate90(rs), t3d.ToTensor(rs)]
@@ -92,7 +92,7 @@ class hdf5_3d_dataloader(BaseDataLoader):
         self.shape = shape
         importlib.reload(databases) #used to get load any recent changes from database class
         self.dataset = databases.hdf5dataset(hdf5_path, shape = self.shape, training = training, transforms=trsfm)
-        self.ids = self.dataset.getIds()
+        #self.ids = self.dataset.getIds()
         super(hdf5_3d_dataloader, self).__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
         #base data loader requires (dataset, batchsize, shuffle, validation_split, numworkers)
 
