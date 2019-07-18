@@ -29,17 +29,6 @@ print("Modules loaded")
 def get_instance(module, name, config, *args):
     return getattr(module, config[name]['type'])(*args, **config[name]['args'])
 
-def visualize(dataloader):
-    images, labels = next(iter(dataloader))
-    fig = plt.figure(figsize=(40, 40))
-    batch = math.ceil(math.sqrt(dataloader.batch_size))
-    for i in range(len(images)):
-        a = fig.add_subplot(batch,batch,i+1)
-        img = images[i].permute(1,2,0).numpy()
-        img = np.squeeze(img)
-        imgplot = plt.imshow(img, cmap = "gray")
-        plt.axis('off')
-        a.set_title("Label = " +str(labels[i].numpy()), fontsize=30)
 
 def main(config, resume):
     print("GPUs available: " + str(torch.cuda.device_count()))

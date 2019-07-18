@@ -10,6 +10,10 @@ from sklearn.utils.multiclass import unique_labels
 from PIL import Image
 from ipywidgets import widgets, interact
 
+'''
+utils that do not serve a broader purpose, and generally are used for visualization or otherwise
+'''
+
 def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)

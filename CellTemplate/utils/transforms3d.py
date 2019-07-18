@@ -15,8 +15,9 @@ class shotNoise:
     def __init__(self,random_state, alpha = 1.0, execution_prob = 0.3):
         '''
         adds poisson noise to image and decrease signal of original image by a factor of alpha
-        note that alpha=0.0 does not add noise
-        needs to be used with range normalization
+        note that alpha=0.0 is just noise
+        should be used with range normalization as decreasing signal significantly alters mean and standard deviation
+        if execution probability = 1.0, then the given alpha value is always applied, if probability < 1.0, then a random alpha in the range [alpha, 1.0] is selected
         '''
         self.alpha = alpha
         self.rs = random_state
@@ -26,10 +27,9 @@ class shotNoise:
         #TODO: this should be have an execution probability for data augmentation
         assert m.ndim in [3, 4], 'Supports only 3D (DxHxW) or 4D (CxDxHxW) images'
         if self.rs.uniform() < self.execution_prob:
-            alpha = self.rs.uniform(self.alpha, 1.0)
+            alpha = self.rs.uniform(self.alpha, 1.0) #choose a random alpha value
             if self.execution_prob == 1.0: alpha = self.alpha
             noise = np.random.poisson(m) - m
-            #print(np.amax(m) / np.amax(noise))
             noise_img = m*alpha + noise
             return noise_img.astype(int)
         else:
@@ -41,6 +41,9 @@ class Downsample:
     def __init__(self,random_state, factor = 2.0, order = 3):
         self.factor = 1.0 / factor
         self.order = order
+        '''
+        downsamples by a factor and then resizes image to match the original input
+        '''
     def __call__(self, m):
         assert m.ndim in [3, 4], 'Supports only 3D (DxHxW) or 4D (CxDxHxW) images'
         original_shape = m.shape
