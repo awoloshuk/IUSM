@@ -8,9 +8,9 @@ from torch.autograd import Variable
 import torch.nn.init as init
 
 
-class threeDmodel_update(BaseModel):
+class threeDmodel(BaseModel):
     def __init__(self,num_feature=32, num_classes=2, depth=7):
-        super(threeDmodel_update,self).__init__()
+        super(threeDmodel,self).__init__()
         self.num_feature=num_feature
         
         self.conv_layer1 = self._make_conv_layer(1, self.num_feature)
@@ -69,6 +69,7 @@ class threeDmodel_update(BaseModel):
         return x
     
     def _make_conv_layer(self, in_c, out_c, mp_d=2):
+        # note that kernals in Conv3d are (depth, width, height)
         conv_layer = nn.Sequential(
         nn.Conv3d(in_c, out_c, kernel_size=(3, 3, 3), padding=1),
         nn.BatchNorm3d(out_c),
@@ -79,7 +80,6 @@ class threeDmodel_update(BaseModel):
         nn.MaxPool3d((mp_d, 2, 2)),
         )
         return conv_layer
-
 
 
 class MnistModel(BaseModel):
@@ -354,75 +354,6 @@ class heatmapModel64(BaseModel):
         out = self.fc_layer(out)
         return out
     
-    
-class threeDmodel(BaseModel):
-    def __init__(self,num_feature=32, num_classes=2, depth=7):
-        super(threeDmodel,self).__init__()
-        self.num_feature=num_feature
-        
-        self.conv_layer1 = self._make_conv_layer(1, self.num_feature)
-        self.conv_layer2 = self._make_conv_layer(self.num_feature, self.num_feature*2)
-        self.conv_layer3 = self._make_conv_layer(self.num_feature*2, self.num_feature*4)
-        self.conv_layer4=nn.Conv3d(self.num_feature*4, self.num_feature*8, kernel_size=(1, 3, 3), padding=(0,1,1))
-        
-        self.fc5 = nn.Linear(self.num_feature*8*1*4*4, self.num_feature*8)
-        self.relu = nn.LeakyReLU()
-        self.batch0=nn.BatchNorm1d(self.num_feature*8)
-        self.drop=nn.Dropout(p=0.5)
-        self.fc6 = nn.Linear(self.num_feature*8, self.num_feature*4)
-        self.relu1 = nn.LeakyReLU()
-        self.batch1=nn.BatchNorm1d(self.num_feature*4)
-        self.drop1=nn.Dropout(p=0.5)     
-        self.fc7 = nn.Linear(self.num_feature*4, num_classes)
-        
-        for m in self.modules():
-            if isinstance(m, nn.Conv3d):
-                # Kaming Initialization
-                init.kaiming_normal_(m.weight.data)
-                #m.bias.data.fill_(0)
-                init.normal_(m.bias.data)
-            elif isinstance(m, nn.Linear):
-                # Kaming Initialization
-                init.kaiming_normal_(m.weight.data)
-                #m.bias.data.fill_(0)
-                init.normal_(m.bias.data)
-                
-        
-    def forward(self,x):
-        #print(x.size())
-        x = self.conv_layer1(x)
-        #print(x.size())
-        x = self.conv_layer2(x)
-        #print(x.size())
-        x = self.conv_layer3(x)
-        #print(x.size())
-        x=self.conv_layer4(x)
-        #print(x.size())
-        x = x.view(x.size(0), -1)
-        x = self.fc5(x)
-        x = self.relu(x)
-        x = self.batch0(x)
-        x = self.drop(x)
-        x = self.fc6(x)
-        x = self.relu1(x)
-        x = self.batch1(x)
-        x = self.drop1(x)
-        x1=x
-        x = self.fc7(x)
-
-        return x
-    
-    def _make_conv_layer(self, in_c, out_c, mp_d=2):
-        conv_layer = nn.Sequential(
-        nn.Conv3d(in_c, out_c, kernel_size=(3, 3, 3), padding=1),
-        nn.BatchNorm3d(out_c),
-        nn.LeakyReLU(),
-        nn.Conv3d(out_c, out_c, kernel_size=(3, 3, 3), padding=1),
-        nn.BatchNorm3d(out_c),
-        nn.LeakyReLU(),
-        nn.MaxPool3d((mp_d, 2, 2)),
-        )
-        return conv_layer
 
 class threeDmodel_simple(BaseModel):
     def __init__(self,num_feature=32, num_classes=2, depth=7):

@@ -5,6 +5,10 @@ import torch
 import torchvision
 import re
 
+'''
+Reads the files in a saved directory and shows the training / validation accuracy and loss for every epoch. 
+'''
+
 def atoi(text):
     return int(text) if text.isdigit() else text
 

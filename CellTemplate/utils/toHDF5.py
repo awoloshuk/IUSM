@@ -23,6 +23,7 @@ def list_dirs(directory):
     """
     return [f for f in pathlib.Path(directory).iterdir() if f.is_dir()]
 
+
 def main(args):
     if args.dir == None: args.dir = "./"
     csv_files = list_files(args.dir)
@@ -46,13 +47,28 @@ def main(args):
         test_ind = imgs[0:int(num_imgs*args.split)]
         train_ind = imgs[int(num_imgs*args.split+1.0) :]
         
-
-        train_img = csv_data.iloc[train_ind,1:] #first column is label
+        img_start = 1
+        if (csv_data.iloc[:,1].max() > 256).any:
+            img_start = 2
+            ids = csv_data.iloc[test_ind,1].to_numpy()
+            ids = ids.reshape(ids.shape[0], 1)
+            store.append('test_ids', pd.DataFrame(ids))
+            
+        train_img = csv_data.iloc[train_ind,img_start:] #first column is label
+        
         train_img = train_img.dropna(axis=1)
         train_label = csv_data.iloc[train_ind,0]
-        test_img = csv_data.iloc[test_ind,1:] #first column is label
+        test_img = csv_data.iloc[test_ind,img_start:] #first column is label
         test_img = test_img.dropna(axis=1)
         test_label = csv_data.iloc[test_ind,0]
+        if (train_img.min() < 0).any(): #convert signed to unsigned bytes
+            train_img = train_img + 0
+            test_img = test_img+0
+            mask = train_img < 0
+            train_img[mask] = train_img + 256
+            mask = test_img < 0
+            test_img[mask] = test_img + 256
+            
         print(train_img.shape)
         print(test_img.shape)
         store.append('train_data', train_img)
@@ -68,7 +84,6 @@ def main(args):
         '''
         count = 0
         if count == 0:
-
             
             # Note: will generate warnings if filename contains a "."
             train_img.to_hdf(filename, 'train_data',mode='a', format='table')
@@ -91,7 +106,7 @@ def main(args):
     store.append('Metadata', metadata)
     
     store.close()       
-    with h5py.File(filename, "r") as f:
+    with pd.HDFStore(filename) as f:
         print()
         print("Successfully created " + filename)
         print("===============")
@@ -100,6 +115,8 @@ def main(args):
         print("Training images: " + str(num_images_train))
         print("Testing images: " + str(num_images_test))
         print("Training image mean = " + str(np.mean(means)) + " and std = " + str(np.mean(stdevs)))
+   
+        
             
     
 

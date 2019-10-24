@@ -4,9 +4,11 @@ from torch.utils.data.dataloader import default_collate
 from torch.utils.data.sampler import SubsetRandomSampler
 
 
+
 class BaseDataLoader(DataLoader):
     """
     Base class for all data loaders
+    BaseDataLoader is responsible for initializing the torch data loader structure as well as splitting the validation data
     """
     def __init__(self, dataset, batch_size, shuffle, validation_split, num_workers, collate_fn=default_collate, pin_memory = True):
         self.validation_split = validation_split

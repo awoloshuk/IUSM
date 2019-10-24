@@ -1,22 +1,22 @@
 {
-    "name": "IMPRS_hdf5_test",
+    "name": "hyperop_test",
     "n_gpu": 1,
     
     "arch": {
         "type": "threeDmodel",
         "args": {
         "num_classes": 5,
-        "num_feature": 8
+        "num_feature": 16
         }
     },
     "data_loader": {
         "type": "hdf5_3d_dataloader",
         "args":{
-            "hdf5_path": "C:/Users/awoloshu/Documents/CellTemplate/data/multiclass_IMPRS/multiclass_dataset.h5",
+            "hdf5_path": "../data/multiclass_IMPRS/multiclass_dataset.h5",
             "shape": [7,32,32],
-            "batch_size": 32,
+            "batch_size": 128,
             "shuffle": true,
-            "validation_split": 0.15,
+            "validation_split": 0.1,
             "num_workers": 0,
             "training": true
         }
@@ -24,37 +24,37 @@
     "data_loader_test": { 
         "type": "hdf5_3d_dataloader",
         "args":{
-            "hdf5_path": "C:/Users/awoloshu/Documents/CellTemplate/data/multiclass_IMPRS/multiclass_dataset.h5",
+            "hdf5_path": "../../CellTemplate/data/imprs_hdf5/allDAPI_volume_dataset.h5",
             "shape": [7,32,32],
             "batch_size": 64,
             "shuffle": false,
             "validation_split": 0.0,
-            "num_workers": 0,
+            "num_workers": 2,
             "training": false
         }
     },
     "optimizer": {
         "type": "Adam",
         "args":{
-            "lr": 0.0001,
+            "lr": 0.001,
             "weight_decay": 0.005,
             "amsgrad": true
         }
     },
     "loss": "cross_entropy_loss",
     "metrics": [
-        "accuracy", "f1", "balanced_accuracy", "precision", "recall"
+        "balanced_accuracy"
     ],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
-            "step_size": 400,
-            "gamma": 0.5
+            "step_size": 25,
+            "gamma": 0.2
         }
     },
     "trainer": {
-        "epochs":500,
-        "save_dir": "C:/Users/awoloshu/Documents/CellTemplate/saved/",
+        "epochs":1000,
+        "save_dir": "_",
         "save_period": 100,
         "verbosity": 1,
         

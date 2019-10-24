@@ -10,6 +10,10 @@ from sklearn.utils.multiclass import unique_labels
 from PIL import Image
 from ipywidgets import widgets, interact
 
+'''
+utils that do not serve a broader purpose, and generally are used for visualization or otherwise
+'''
+
 def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
@@ -36,7 +40,7 @@ def visualizeBatch(dataloader, normalized):
         img = np.squeeze(img.numpy())
         
         lab = np.squeeze(labels[0])
-        classes = ['glom', 'pct', 'vasculature']
+        classes = ['glom', 'pct', 'tal', 'CD45', 'dct']
         def update_layer(layer = 0):
             plt.imshow(img[layer], cmap ='gray')
             plt.show()

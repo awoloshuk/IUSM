@@ -5,6 +5,9 @@ from torch.autograd import Variable
 from collections import OrderedDict
 import numpy as np
 
+'''
+given an model and input shape, e.g. (32,32), the model prints out the output shape of each layer and the number of parameters
+'''
 
 def summary(model, input_size, batch_size=-1, device="cuda"):
     def register_hook(module):

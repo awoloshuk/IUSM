@@ -35,8 +35,11 @@ def getCAM(feature_conv, weight_fc, class_idx):
 class CAMgenerator():
     def __init__(self, hm_layers, config, model ):
         '''
+        Takes the model and feeds in an image, tracks the CNN layer activation and maps the last convolution to the original input. Used to visualize where to model is "looking" in the image. Note that the last activation is usually much smaller (after multiple pooling layers), and therefore the resize operation can have artificts. Works for 2D images. 
+        
         hm_layers = {final_layer: string, conv_num: (int)layer of last convolution, fc_layer: string}
         num_images = number of images to show
+        
         '''
         
         data_loader = getattr(module_data, config['data_loader_test']['type'])(
@@ -50,7 +53,6 @@ class CAMgenerator():
     
         self.data_loader = data_loader
         
-        #print(hm_layers['final_layer'])
         self.final_layer = model._modules.get(hm_layers['final_layer'])
         self.fc_layer = hm_layers['fc_layer']
         self.fc_num = hm_layers['fc_num']
@@ -73,7 +75,6 @@ class CAMgenerator():
                     weight_softmax_params = list(self.model._modules.get(self.fc_layer)[self.fc_num].parameters())
                     weight_softmax = np.squeeze(weight_softmax_params[0].cpu().data.numpy())
                     overlay = getCAM(self.activated_features.features, weight_softmax, class_idx )
-                    #plt.imshow(overlay[0], alpha=0.5, cmap='jet')
                     plt.title("Prediction = " + str(class_idx[0].data.numpy()) + \
                               " | Actual = " + str(target[0].cpu().data.numpy()) )
                     plt.imshow(image, cmap="gray")
@@ -82,14 +83,11 @@ class CAMgenerator():
                     
                     
 def getCAM3d(feature_conv, weight_fc, class_idx):
-    # 1 256 1 4 4 --> needs to be 128 4 4
     feature_conv = feature_conv[0]
     new_features = np.empty((feature_conv.shape[0]//2, feature_conv.shape[1], feature_conv.shape[2], feature_conv.shape[3]))
     for i in range(feature_conv.shape[0]//2):
         new_features[i] = (feature_conv[i*2, 0 ,:,:] + feature_conv[i*2+1, 0 ,:,:])/2
-    #print(np.squeeze(new_features).shape)
     nc, _, h, w = new_features.shape
-    #print(np.squeeze(weight_fc[class_idx]).shape) #128
     cam = np.squeeze(weight_fc[class_idx]).dot(np.squeeze(new_features).reshape((nc, h*w)))
     cam = cam.reshape(h, w)
     cam = cam - np.min(cam)
@@ -99,8 +97,11 @@ def getCAM3d(feature_conv, weight_fc, class_idx):
 class CAMgenerator3d():
     def __init__(self, hm_layers, config, model ):
         '''
+        Takes the model and feeds in an image, tracks the CNN layer activation and maps the last convolution to the original input. Used to visualize where to model is "looking" in the image. Note that the last activation is usually much smaller (after multiple pooling layers), and therefore the resize operation can have artificts. Works for 3D images. 
+        
         hm_layers = {final_layer: string, conv_num: (int)layer of last convolution, fc_layer: string}
         num_images = number of images to show
+        
         '''
         
         data_loader = getattr(module_data, config['data_loader_test']['type'])(
@@ -144,9 +145,8 @@ class CAMgenerator3d():
                     
                     weight_softmax = np.squeeze(weight_softmax_params[0].cpu().data.numpy())
                     overlay = getCAM3d(self.activated_features.features, weight_softmax, class_idx )
-                    #plt.imshow(overlay[0], alpha=0.5, cmap='jet')
                     plt.title("Prediction = " + str(class_idx[0].data.numpy()) + \
                               " | Actual = " + str(target[0].cpu().data.numpy()) )
-                    plt.imshow(image[num_slices//2], cmap="gray")
-                    plt.imshow(skimage.transform.resize(overlay[0], image[num_slices//2].shape), alpha=0.4, cmap='RdBu') #hot is good
+                    plt.imshow(image[num_slices//2], cmap="gray") #shows the middle slice of the volume
+                    plt.imshow(skimage.transform.resize(overlay[0], image[num_slices//2].shape), alpha=0.4, cmap='RdBu') 
                     plt.pause(.1)
