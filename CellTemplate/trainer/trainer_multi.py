@@ -2,6 +2,8 @@ import numpy as np
 import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
+from queue import *
+from multiprocessing import Process
 
 class QueueIterator:
     def __init__(self, q: Queue):
@@ -30,7 +32,6 @@ def enqueue_loader_output(batch_queue: Queue, control_queue: Queue, loader):
 class Trainer(BaseTrainer):
     """
     Trainer class
-
     Note:
         Inherited from BaseTrainer.
     """
@@ -57,17 +58,14 @@ class Trainer(BaseTrainer):
     def _train_epoch(self, epoch):
         """
         Training logic for an epoch
-
         :param epoch: Current training epoch.
         :return: A log that contains all information you want to save.
-
         Note:
             If you have additional information to record, for example:
                 > additional_log = {"x": x, "y": y}
             merge it with log before return. i.e.
                 > log = {**log, **additional_log}
                 > return log
-
             The metrics in log must have the key 'metrics'.
         """
         self.model.train()
@@ -76,7 +74,7 @@ class Trainer(BaseTrainer):
 
         batch_queue = Queue(100)
         control_queue = Queue()
-        Process(target=enqueue_loader_output, args=(batch_queue, control_queue, train_loader)).start()
+        Process(target=enqueue_loader_output, args=(batch_queue, control_queue, self.data_loader)).start()
 
         for batch_idx, data, target in QueueIterator(self.data_loader):
             data, target = data.to(self.device), target.to(self.device)
@@ -118,9 +116,7 @@ class Trainer(BaseTrainer):
     def _valid_epoch(self, epoch):
         """
         Validate after training an epoch
-
         :return: A log that contains information about validation
-
         Note:
             The validation metrics in log must have the key 'val_metrics'.
         """
