@@ -23,8 +23,8 @@ def enqueue_loader_output(batch_queue: Queue, control_queue: Queue, loader):
         if ctrl is False:
             break
 
-        for batch_id, (x, _) in enumerate(loader):
-            batch_queue.put((batch_id,x))
+        for batch_id, (x, target) in enumerate(loader):
+            batch_queue.put((batch_id,x,target))
         batch_queue.put(None)
 
 class Trainer(BaseTrainer):
@@ -78,7 +78,7 @@ class Trainer(BaseTrainer):
         control_queue = Queue()
         Process(target=enqueue_loader_output, args=(batch_queue, control_queue, train_loader)).start()
 
-        for batch_idx, (data, target) in QueueIterator(self.data_loader):
+        for batch_idx, data, target in QueueIterator(self.data_loader):
             data, target = data.to(self.device), target.to(self.device)
             self.optimizer.zero_grad()
             output = self.model(data)
